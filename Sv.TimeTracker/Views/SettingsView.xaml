@@ -99,9 +99,13 @@
                                    Foreground="{StaticResource TextFillColorSecondary}"
                                    Margin="0,0,0,8" />
 
-                        <CheckBox Content="Play chime at :00 and :30 while timer is running"
+                        <CheckBox Content="Play chime on the hour (:00) while timer is running"
                                   IsChecked="{Binding HourlyDingEnabled, Mode=TwoWay}"
-                                  Margin="0,0,0,10" />
+                                  Margin="0,0,0,6" />
+                        <CheckBox Content="Also play chime on the half-hour (:30)"
+                                  IsChecked="{Binding HalfHourDingEnabled, Mode=TwoWay}"
+                                  IsEnabled="{Binding HourlyDingEnabled}"
+                                  Margin="18,0,0,10" />
 
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
@@ -269,6 +273,96 @@
                                    TextWrapping="Wrap"
                                    Margin="0,6,0,0"
                                    Visibility="{Binding HotkeyWarningsText, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Data Storage Card -->
+                <Border Style="{StaticResource FrostedCardStyle}" Margin="0,4,0,6">
+                    <StackPanel>
+                        <TextBlock Text="DATA STORAGE"
+                                   FontSize="10.5"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                   Margin="0,0,0,6" />
+                        <TextBlock Text="Local SQLite database (preserved across app upgrades):"
+                                   FontSize="11.5"
+                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                   Margin="0,0,0,6" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding DatabasePath, Mode=OneWay}"
+                                     IsReadOnly="True"
+                                     Height="30"
+                                     FontSize="11.5"
+                                     VerticalContentAlignment="Center"
+                                     Padding="8,0"
+                                     ToolTip="{Binding DatabasePath}" />
+                            <Button Grid.Column="1"
+                                    Content="Open Folder"
+                                    Command="{Binding OpenDatabaseFolderCommand}"
+                                    Style="{StaticResource SubtleButtonStyle}"
+                                    Padding="10,4"
+                                    Margin="8,0,0,0" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- About Card -->
+                <Border Style="{StaticResource FrostedCardStyle}" Margin="0,4,0,6">
+                    <StackPanel>
+                        <TextBlock Text="ABOUT"
+                                   FontSize="10.5"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                   Margin="0,0,0,10" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Image Grid.Column="0"
+                                   Source="pack://application:,,,/Assets/app-icon.png"
+                                   Width="36"
+                                   Height="36"
+                                   Margin="0,0,12,0"
+                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                   VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="SV Time Tracker"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextFillColorPrimary}" />
+                                    <TextBlock Text="{Binding AppVersionDisplay}"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextFillColorSecondary}"
+                                               VerticalAlignment="Bottom"
+                                               Margin="8,0,0,1" />
+                                </StackPanel>
+                                <TextBlock Text="Software Vantage · Houston, Texas"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextFillColorSecondary}"
+                                           Margin="0,2,0,0" />
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button Content="🌐 www.softwarevantage.com"
+                                    Command="{Binding OpenWebsiteCommand}"
+                                    Style="{StaticResource SubtleButtonStyle}"
+                                    Padding="10,5"
+                                    FontSize="12"
+                                    Margin="0,0,8,0" />
+                            <Button Content="Check for Updates"
+                                    Command="{Binding OpenReleasesCommand}"
+                                    Style="{StaticResource SubtleButtonStyle}"
+                                    Padding="10,5"
+                                    FontSize="12" />
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </StackPanel>

@@ -129,7 +129,7 @@ public partial class MainViewModel : ObservableObject
     partial void OnIsTopmostChanged(bool value)
     {
         _ = _settingsRepo.SetAsync(SettingKeys.TopmostEnabled, value.ToString().ToLowerInvariant());
-        Settings.TopmostEnabled = value;
+        Settings.SyncTopmostFromExternal(value);
     }
 
     partial void OnIsCompactModeChanged(bool value)

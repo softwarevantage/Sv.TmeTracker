@@ -8,10 +8,10 @@
         mc:Ignorable="d"
         Title="SV Time Tracker"
         Icon="pack://application:,,,/Assets/app.ico"
-        Width="480"
-        Height="648"
-        MinWidth="390"
-        MinHeight="528"
+        Width="500"
+        Height="660"
+        MinWidth="480"
+        MinHeight="620"
         Style="{x:Null}"
         WindowStyle="None"
         ResizeMode="CanResize"
@@ -50,17 +50,27 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Image Source="pack://application:,,,/Assets/app.ico"
+                        <Image Source="pack://application:,,,/Assets/app-icon.png"
                                Width="20"
                                Height="20"
                                Margin="0,0,8,0"
                                RenderOptions.BitmapScalingMode="HighQuality"
                                VerticalAlignment="Center" />
-                        <TextBlock Text="SV Time Tracker"
-                                   FontSize="13.5"
+                        <TextBlock FontSize="13.5"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource TextFillColorPrimary}"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="SV Time Tracker" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCompactMode}" Value="True">
+                                            <Setter Property="Text" Value="SV TT" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <Ellipse Width="8"
                                  Height="8"
                                  Margin="8,1,0,0"

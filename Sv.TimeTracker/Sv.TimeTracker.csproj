@@ -7,6 +7,9 @@
     <AssemblyName>SV Time Tracker</AssemblyName>
     <Product>SV Time Tracker</Product>
     <Title>SV Time Tracker</Title>
+    <Company>Software Vantage</Company>
+    <Authors>Software Vantage</Authors>
+    <Copyright>© Software Vantage</Copyright>
     <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
@@ -20,6 +23,11 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <PublishDir Condition="'$(RuntimeIdentifier)' != ''">bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\SV Time Tracker\</PublishDir>
     <PublishDir Condition="'$(RuntimeIdentifier)' == ''">bin\$(Configuration)\$(TargetFramework)\SV Time Tracker\</PublishDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>

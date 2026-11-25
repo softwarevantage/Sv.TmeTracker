@@ -22,6 +22,7 @@ public static class SettingKeys
     public const string WindowTop = "WindowTop";
 
     public const string HourlyDingEnabled = "HourlyDingEnabled";
+    public const string HalfHourDingEnabled = "HalfHourDingEnabled";
     public const string HourlyDingVolume = "HourlyDingVolume";
     public const string HourlyDingSoundPath = "HourlyDingSoundPath";
     public const string QuietHoursStart = "QuietHoursStart";

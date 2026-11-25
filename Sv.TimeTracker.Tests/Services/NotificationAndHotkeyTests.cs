@@ -51,6 +51,33 @@ public class NotificationAndHotkeyTests
     }
 
     [Fact]
+    public async Task NotificationService_SkipsHalfHourChime_WhenHalfHourDisabled()
+    {
+        using var db = new TempDatabaseFixture(seedStarterWorkItems: false);
+        var item = await db.WorkItems.CreateAsync(new WorkItem { Title = "Focus" });
+        await db.Settings.SetAsync(SettingKeys.HalfHourDingEnabled, "false");
+
+        var clock = new AdjustableTimeProvider(
+            new DateTimeOffset(2026, 11, 24, 14, 30, 0, TimeSpan.Zero),
+            TimeZoneInfo.Utc);
+
+        using var timer = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false, db.Settings);
+        var audioMock = new Mock<IAudioChimePlayer>();
+        var notification = new NotificationService(timer, db.Settings, audioMock.Object, clock);
+
+        await timer.StartAsync(item.Id);
+
+        // 14:30 should be skipped when HalfHourDingEnabled is false
+        await notification.CheckHourlyDingAsync();
+        audioMock.Verify(a => a.PlayChime(It.IsAny<int>(), It.IsAny<string?>()), Times.Never);
+
+        // 15:00 should still chime
+        clock.SetUtcNow(new DateTimeOffset(2026, 11, 24, 15, 0, 0, TimeSpan.Zero));
+        await notification.CheckHourlyDingAsync();
+        audioMock.Verify(a => a.PlayChime(60, string.Empty), Times.Once);
+    }
+
+    [Fact]
     public void SynthesizedAudioChimePlayer_BuildsValidRiffWaveStream()
     {
         using var wav = SynthesizedAudioChimePlayer.BuildTwoToneChimeWav(0.75);

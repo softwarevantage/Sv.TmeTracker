@@ -54,10 +54,13 @@ jobs:
             --self-contained true `
             -p:PublishSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:DebugType=none `
+            -p:DebugSymbols=false `
             -p:Version=$ver
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
           $publishDir = "Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SV Time Tracker"
+          Get-ChildItem -Path $publishDir -Filter "*.pdb" -ErrorAction SilentlyContinue | Remove-Item -Force
           $zipPath = "SV-Time-Tracker-v$ver-win-x64.zip"
           Get-ChildItem -Filter "SV-Time-Tracker-*-win-x64.zip" | Remove-Item -Force
           Compress-Archive -Path "$publishDir\*" -DestinationPath $zipPath

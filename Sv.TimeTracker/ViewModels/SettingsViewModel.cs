@@ -1,10 +1,13 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
+using Sv.TimeTracker.Data;
 using Sv.TimeTracker.Data.Repositories;
 using Sv.TimeTracker.Models;
 using Sv.TimeTracker.Services;
@@ -17,6 +20,25 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IWorkItemRepository _workItemRepo;
     private readonly INotificationService _notificationService;
     private readonly IHotkeyService _hotkeyService;
+    private SavedSettingsState? _savedState;
+    private bool _isLoading;
+
+    private sealed record SavedSettingsState(
+        long DefaultWorkItemId,
+        bool TopmostEnabled,
+        bool MinimizeToTray,
+        bool PersistWindowBounds,
+        int BackgroundOpacity,
+        bool HourlyDingEnabled,
+        bool HalfHourDingEnabled,
+        int HourlyDingVolume,
+        string HourlyDingSoundPath,
+        string QuietHoursStart,
+        string QuietHoursEnd,
+        bool GlobalHotkeyEnabled,
+        string ToggleTimerHotkey,
+        string ShowHideHotkey,
+        string WorkItemsHotkey);
 
     public ObservableCollection<WorkItemFilterOption> DefaultWorkItemOptions { get; } = [];
 
@@ -38,6 +60,9 @@ public partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _hourlyDingEnabled = true;
+
+    [ObservableProperty]
+    private bool _halfHourDingEnabled = true;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VolumeDisplay))]
@@ -80,6 +105,12 @@ public partial class SettingsViewModel : ObservableObject
 
     public string AppVersionDisplay { get; } = ResolveAppVersion();
 
+    public string DatabasePath => DatabaseHelper.DefaultFactory.DatabasePath;
+
+    public bool HasUnsavedChanges => _savedState != null && CaptureCurrentState() != _savedState;
+
+    private bool CanSaveSettings() => HasUnsavedChanges;
+
     public string SoundFileDisplay => string.IsNullOrWhiteSpace(HourlyDingSoundPath)
         ? "Built-in Harmonic Chime"
         : Path.GetFileName(HourlyDingSoundPath);
@@ -109,6 +140,7 @@ public partial class SettingsViewModel : ObservableObject
         var persistBounds = await _settingsRepo.GetBoolAsync(SettingKeys.PersistWindowBounds, true);
         var bgOpacity = await _settingsRepo.GetIntAsync(SettingKeys.BackgroundOpacity, 80);
         var dingEnabled = await _settingsRepo.GetBoolAsync(SettingKeys.HourlyDingEnabled, true);
+        var halfHourEnabled = await _settingsRepo.GetBoolAsync(SettingKeys.HalfHourDingEnabled, true);
         var dingVolume = await _settingsRepo.GetIntAsync(SettingKeys.HourlyDingVolume, 60);
         var soundPath = await _settingsRepo.GetAsync(SettingKeys.HourlyDingSoundPath) ?? string.Empty;
         var quietStart = await _settingsRepo.GetAsync(SettingKeys.QuietHoursStart) ?? "22:00";
@@ -120,29 +152,42 @@ public partial class SettingsViewModel : ObservableObject
 
         UiDispatcher.Invoke(() =>
         {
-            DefaultWorkItemOptions.Clear();
-            var noneOption = new WorkItemFilterOption(0, "Remember Last Selected");
-            DefaultWorkItemOptions.Add(noneOption);
-            foreach (var item in items)
+            _isLoading = true;
+            try
             {
-                DefaultWorkItemOptions.Add(new WorkItemFilterOption(item.Id, item.Title, item.Color));
+                DefaultWorkItemOptions.Clear();
+                var noneOption = new WorkItemFilterOption(0, "Remember Last Selected");
+                DefaultWorkItemOptions.Add(noneOption);
+                foreach (var item in items)
+                {
+                    DefaultWorkItemOptions.Add(new WorkItemFilterOption(item.Id, item.Title, item.Color));
+                }
+
+                SelectedDefaultWorkItem = DefaultWorkItemOptions.FirstOrDefault(o => o.Id == defaultId) ?? noneOption;
+                TopmostEnabled = topmost;
+                MinimizeToTray = minimizeToTray;
+                PersistWindowBounds = persistBounds;
+                BackgroundOpacity = Math.Clamp(bgOpacity, 35, 100);
+                HourlyDingEnabled = dingEnabled;
+                HalfHourDingEnabled = halfHourEnabled;
+                HourlyDingVolume = Math.Clamp(dingVolume, 0, 100);
+                HourlyDingSoundPath = soundPath;
+                QuietHoursStart = quietStart;
+                QuietHoursEnd = quietEnd;
+                GlobalHotkeyEnabled = hotkeysEnabled;
+                ToggleTimerHotkey = toggleHotkey;
+                ShowHideHotkey = showHideHotkey;
+                WorkItemsHotkey = workItemsHotkey;
+                HotkeyWarningsText = string.Join("  ", _hotkeyService.RegistrationWarnings);
+
+                _savedState = CaptureCurrentState();
+            }
+            finally
+            {
+                _isLoading = false;
             }
 
-            SelectedDefaultWorkItem = DefaultWorkItemOptions.FirstOrDefault(o => o.Id == defaultId) ?? noneOption;
-            TopmostEnabled = topmost;
-            MinimizeToTray = minimizeToTray;
-            PersistWindowBounds = persistBounds;
-            BackgroundOpacity = Math.Clamp(bgOpacity, 35, 100);
-            HourlyDingEnabled = dingEnabled;
-            HourlyDingVolume = Math.Clamp(dingVolume, 0, 100);
-            HourlyDingSoundPath = soundPath;
-            QuietHoursStart = quietStart;
-            QuietHoursEnd = quietEnd;
-            GlobalHotkeyEnabled = hotkeysEnabled;
-            ToggleTimerHotkey = toggleHotkey;
-            ShowHideHotkey = showHideHotkey;
-            WorkItemsHotkey = workItemsHotkey;
-            HotkeyWarningsText = string.Join("  ", _hotkeyService.RegistrationWarnings);
+            RefreshDirtyState();
         });
     }
 
@@ -182,6 +227,53 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public void OpenWebsite() => OpenExternalUrl("https://www.softwarevantage.com");
+
+    [RelayCommand]
+    public void OpenReleases() => OpenExternalUrl("https://github.com/softwarevantage/Sv.TmeTracker/releases/latest");
+
+    private static void OpenExternalUrl(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(url)
+            {
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
+            // Ignore shell launch failures on headless machines
+        }
+    }
+
+    [RelayCommand]
+    public void OpenDatabaseFolder()
+    {
+        var dbPath = DatabasePath;
+        var dir = Path.GetDirectoryName(dbPath);
+        if (string.IsNullOrWhiteSpace(dir))
+        {
+            return;
+        }
+
+        if (File.Exists(dbPath))
+        {
+            Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{dbPath}\"")
+            {
+                UseShellExecute = true
+            });
+        }
+        else if (Directory.Exists(dir))
+        {
+            Process.Start(new ProcessStartInfo("explorer.exe", $"\"{dir}\"")
+            {
+                UseShellExecute = true
+            });
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSaveSettings))]
     public async Task SaveSettingsAsync()
     {
         HasValidationError = false;
@@ -223,6 +315,7 @@ public partial class SettingsViewModel : ObservableObject
         await _settingsRepo.SetAsync(SettingKeys.PersistWindowBounds, PersistWindowBounds.ToString().ToLowerInvariant());
         await _settingsRepo.SetAsync(SettingKeys.BackgroundOpacity, Math.Clamp(BackgroundOpacity, 35, 100).ToString(CultureInfo.InvariantCulture));
         await _settingsRepo.SetAsync(SettingKeys.HourlyDingEnabled, HourlyDingEnabled.ToString().ToLowerInvariant());
+        await _settingsRepo.SetAsync(SettingKeys.HalfHourDingEnabled, HalfHourDingEnabled.ToString().ToLowerInvariant());
         await _settingsRepo.SetAsync(SettingKeys.HourlyDingVolume, HourlyDingVolume.ToString(CultureInfo.InvariantCulture));
         await _settingsRepo.SetAsync(SettingKeys.HourlyDingSoundPath, HourlyDingSoundPath);
         await _settingsRepo.SetAsync(SettingKeys.QuietHoursStart, QuietHoursStart.Trim());
@@ -235,8 +328,70 @@ public partial class SettingsViewModel : ObservableObject
         await _hotkeyService.ReloadBindingsAsync();
         HotkeyWarningsText = string.Join("  ", _hotkeyService.RegistrationWarnings);
 
+        _savedState = CaptureCurrentState();
+        RefreshDirtyState();
+
         StatusMessage = "Settings saved and applied.";
         SettingsSaved?.Invoke(new SettingsSnapshot(TopmostEnabled, MinimizeToTray, PersistWindowBounds, Math.Clamp(BackgroundOpacity, 35, 100)));
+    }
+
+    public void SyncTopmostFromExternal(bool topmostEnabled)
+    {
+        _isLoading = true;
+        try
+        {
+            TopmostEnabled = topmostEnabled;
+            if (_savedState != null)
+            {
+                _savedState = _savedState with { TopmostEnabled = topmostEnabled };
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+
+        RefreshDirtyState();
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        if (_isLoading)
+        {
+            return;
+        }
+
+        if (e.PropertyName is nameof(HasUnsavedChanges) or nameof(StatusMessage) or nameof(HasValidationError) or nameof(HotkeyWarningsText))
+        {
+            return;
+        }
+
+        RefreshDirtyState();
+    }
+
+    private SavedSettingsState CaptureCurrentState() => new(
+        DefaultWorkItemId: SelectedDefaultWorkItem?.Id ?? 0,
+        TopmostEnabled: TopmostEnabled,
+        MinimizeToTray: MinimizeToTray,
+        PersistWindowBounds: PersistWindowBounds,
+        BackgroundOpacity: Math.Clamp(BackgroundOpacity, 35, 100),
+        HourlyDingEnabled: HourlyDingEnabled,
+        HalfHourDingEnabled: HalfHourDingEnabled,
+        HourlyDingVolume: Math.Clamp(HourlyDingVolume, 0, 100),
+        HourlyDingSoundPath: HourlyDingSoundPath ?? string.Empty,
+        QuietHoursStart: (QuietHoursStart ?? string.Empty).Trim(),
+        QuietHoursEnd: (QuietHoursEnd ?? string.Empty).Trim(),
+        GlobalHotkeyEnabled: GlobalHotkeyEnabled,
+        ToggleTimerHotkey: (ToggleTimerHotkey ?? string.Empty).Trim(),
+        ShowHideHotkey: (ShowHideHotkey ?? string.Empty).Trim(),
+        WorkItemsHotkey: (WorkItemsHotkey ?? string.Empty).Trim());
+
+    private void RefreshDirtyState()
+    {
+        OnPropertyChanged(nameof(HasUnsavedChanges));
+        SaveSettingsCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnBackgroundOpacityChanged(int value)

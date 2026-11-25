@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://www.softwarevantage.com">
+    <img src="https://www.softwarevantage.com/images/SV_Banner_2027.svg" alt="Software Vantage" width="420" />
+  </a>
+</p>
+
 # SV Time Tracker
 
 [![Build & Release Windows x64](https://github.com/softwarevantage/Sv.TmeTracker/actions/workflows/release.yml/badge.svg)](https://github.com/softwarevantage/Sv.TmeTracker/actions/workflows/release.yml)
@@ -36,7 +42,8 @@ These work even when the app is minimized to the system tray (and can be customi
 ### Privacy & Where Your Data Lives
 - **100% Local & Offline**: Your tasks, time entries, and settings are stored locally in a single SQLite file at:
   `%APPDATA%\Sv.TimeTracker\timetracker.db`
-- Back up or move your history anytime by copying that file.
+- **Preserved Across Upgrades**: The database is created at runtime outside the app folder and is never bundled into `SV Time Tracker.exe` or release zips, so upgrading to a new version keeps all of your existing history and settings intact.
+- You can view the exact database path or open its folder directly from **Settings → Data Storage** inside the app, and back up your history anytime by copying `timetracker.db`.
 
 ---
 
@@ -98,14 +105,20 @@ Output path:
 `Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SV Time Tracker\SV Time Tracker.exe`
 
 ### Cutting a New Release
-1. Bump `<Version>`, `<AssemblyVersion>`, `<FileVersion>`, and `<InformationalVersion>` in `Sv.TimeTracker\Sv.TimeTracker.csproj`.
-2. Commit your changes, then create and push a matching tag:
-   ```powershell
-   git tag v1.0.1
-   git push origin main --tags
-   ```
-3. GitHub Actions will run all tests and automatically publish `SV-Time-Tracker-v1.0.1-win-x64.zip` under **Releases**.
+Run the interactive release script from the repository root:
+```powershell
+.\release.ps1
+```
+It shows the current version, asks for the new version number (or press Enter to release the current version), updates `Sv.TimeTracker\Sv.TimeTracker.csproj`, commits, creates the `v<Version>` tag, and pushes to GitHub. GitHub Actions then runs all tests and publishes `SV-Time-Tracker-v<Version>-win-x64.zip` under **Releases**.
+
+*(Tip: You can also run `.\release.ps1 -Version 1.0.1 -DryRun` to preview without making changes.)*
 
 ### Automation / Smoke Testing Flags
 - `--smoke-test`: Launches the app, initializes DI/SQLite/window chrome, and exits cleanly.
 - `SV_TIMETRACKER_DB_PATH`: Environment variable to override the SQLite database path for isolated testing.
+
+---
+
+## About
+
+Built by **[Software Vantage](https://www.softwarevantage.com)** — Houston, Texas.

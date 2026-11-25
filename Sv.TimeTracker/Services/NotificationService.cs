@@ -190,6 +190,15 @@ public sealed class NotificationService : INotificationService
             return;
         }
 
+        if (localNow.Minute == 30)
+        {
+            var halfHourEnabled = await _settingsRepo.GetBoolAsync(SettingKeys.HalfHourDingEnabled, true);
+            if (!halfHourEnabled)
+            {
+                return;
+            }
+        }
+
         var volume = await _settingsRepo.GetIntAsync(SettingKeys.HourlyDingVolume, 60);
         if (volume <= 0)
         {

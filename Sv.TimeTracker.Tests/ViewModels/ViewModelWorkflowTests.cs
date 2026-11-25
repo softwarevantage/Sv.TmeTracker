@@ -81,17 +81,35 @@ public class ViewModelWorkflowTests
         await historyVm.SaveEntryNotesAsync();
         Assert.Equal("Updated note from History", historyVm.Entries[0].Notes);
 
-        // 5. Validate and save settings
+        // 5. Validate dirty-state tracking and save settings
         await mainVm.NavigateAsync("Settings");
+        Assert.False(settingsVm.HasUnsavedChanges);
+        Assert.False(settingsVm.SaveSettingsCommand.CanExecute(null));
+
+        // Changing a value enables Save; reverting it disables Save again
+        var originalVolume = settingsVm.HourlyDingVolume;
+        settingsVm.HourlyDingVolume = 90;
+        Assert.True(settingsVm.HasUnsavedChanges);
+        Assert.True(settingsVm.SaveSettingsCommand.CanExecute(null));
+
+        settingsVm.HourlyDingVolume = originalVolume;
+        Assert.False(settingsVm.HasUnsavedChanges);
+        Assert.False(settingsVm.SaveSettingsCommand.CanExecute(null));
+
+        // Validation error still keeps dirty state until valid & saved
         settingsVm.ToggleTimerHotkey = "InvalidShortcut";
+        Assert.True(settingsVm.SaveSettingsCommand.CanExecute(null));
         await settingsVm.SaveSettingsAsync();
         Assert.True(settingsVm.HasValidationError);
+        Assert.True(settingsVm.HasUnsavedChanges);
 
         settingsVm.ToggleTimerHotkey = "ctrl+alt+t";
         settingsVm.HourlyDingVolume = 75;
         await settingsVm.SaveSettingsAsync();
 
         Assert.False(settingsVm.HasValidationError);
+        Assert.False(settingsVm.HasUnsavedChanges);
+        Assert.False(settingsVm.SaveSettingsCommand.CanExecute(null));
         Assert.Equal("Ctrl+Alt+T", await db.Settings.GetAsync(SettingKeys.ToggleTimerHotkey));
         Assert.Equal(75, await db.Settings.GetIntAsync(SettingKeys.HourlyDingVolume));
         hotkeyMock.Verify(h => h.ReloadBindingsAsync(), Times.Once);

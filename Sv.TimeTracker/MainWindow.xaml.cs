@@ -17,7 +17,15 @@ public partial class MainWindow : Window
     private readonly ITrayIconService _trayIconService;
     private readonly ISettingsRepository _settingsRepo;
 
-    private double _expandedHeight = 640;
+    private const double FullMinWidth = 480;
+    private const double FullMinHeight = 620;
+    private const double CompactMinWidth = 265;
+    private const double CompactWidth = 265;
+    private const double CompactMinHeight = 200;
+    private const double CompactHeight = 200;
+
+    private double _expandedWidth = 500;
+    private double _expandedHeight = 660;
 
     public MainWindow(
         MainViewModel viewModel,
@@ -104,13 +112,22 @@ public partial class MainWindow : Window
                     _expandedHeight = Height;
                 }
 
-                MinHeight = 205;
-                Height = 215;
+                if (Width >= FullMinWidth)
+                {
+                    _expandedWidth = Width;
+                }
+
+                MinWidth = CompactMinWidth;
+                MinHeight = CompactMinHeight;
+                Width = CompactWidth;
+                Height = CompactHeight;
             }
             else
             {
-                MinHeight = 528;
-                Height = Math.Max(528, _expandedHeight);
+                MinWidth = FullMinWidth;
+                MinHeight = FullMinHeight;
+                Width = Math.Max(FullMinWidth, _expandedWidth);
+                Height = Math.Max(FullMinHeight, _expandedHeight);
             }
         });
     }
@@ -122,18 +139,27 @@ public partial class MainWindow : Window
         var savedLeft = await _settingsRepo.GetDoubleAsync(SettingKeys.WindowLeft);
         var savedTop = await _settingsRepo.GetDoubleAsync(SettingKeys.WindowTop);
 
-        if (savedWidth is >= 380 and <= 2400)
+        if (savedWidth is >= FullMinWidth and <= 2400)
         {
+            _expandedWidth = savedWidth.Value;
             Width = savedWidth.Value;
         }
+        else if (!_viewModel.IsCompactMode)
+        {
+            Width = Math.Max(Width, FullMinWidth);
+        }
 
-        if (savedHeight is >= 500 and <= 2000)
+        if (savedHeight is >= FullMinHeight and <= 2000)
         {
             _expandedHeight = savedHeight.Value;
             if (!_viewModel.IsCompactMode)
             {
                 Height = savedHeight.Value;
             }
+        }
+        else if (!_viewModel.IsCompactMode)
+        {
+            Height = Math.Max(Height, FullMinHeight);
         }
 
         if (savedLeft.HasValue && savedTop.HasValue)
@@ -155,8 +181,9 @@ public partial class MainWindow : Window
             return;
         }
 
+        var widthToSave = _viewModel.IsCompactMode ? _expandedWidth : Width;
         var heightToSave = _viewModel.IsCompactMode ? _expandedHeight : Height;
-        await _settingsRepo.SetAsync(SettingKeys.WindowWidth, Width.ToString("F0", CultureInfo.InvariantCulture));
+        await _settingsRepo.SetAsync(SettingKeys.WindowWidth, widthToSave.ToString("F0", CultureInfo.InvariantCulture));
         await _settingsRepo.SetAsync(SettingKeys.WindowHeight, heightToSave.ToString("F0", CultureInfo.InvariantCulture));
         await _settingsRepo.SetAsync(SettingKeys.WindowLeft, Left.ToString("F0", CultureInfo.InvariantCulture));
         await _settingsRepo.SetAsync(SettingKeys.WindowTop, Top.ToString("F0", CultureInfo.InvariantCulture));
@@ -231,8 +258,9 @@ public partial class MainWindow : Window
     {
         if (_viewModel.PersistWindowBounds && WindowState == WindowState.Normal)
         {
+            var widthToSave = _viewModel.IsCompactMode ? _expandedWidth : Width;
             var heightToSave = _viewModel.IsCompactMode ? _expandedHeight : Height;
-            _ = _settingsRepo.SetAsync(SettingKeys.WindowWidth, Width.ToString("F0", CultureInfo.InvariantCulture));
+            _ = _settingsRepo.SetAsync(SettingKeys.WindowWidth, widthToSave.ToString("F0", CultureInfo.InvariantCulture));
             _ = _settingsRepo.SetAsync(SettingKeys.WindowHeight, heightToSave.ToString("F0", CultureInfo.InvariantCulture));
             _ = _settingsRepo.SetAsync(SettingKeys.WindowLeft, Left.ToString("F0", CultureInfo.InvariantCulture));
             _ = _settingsRepo.SetAsync(SettingKeys.WindowTop, Top.ToString("F0", CultureInfo.InvariantCulture));
