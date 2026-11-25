@@ -22,7 +22,7 @@ SV Time Tracker helps you stay focused and see where your time goes throughout t
 - **History & Reports**: View your **Sessions**, **By Task** breakdown with color-coded progress bars, and **By Day** totals, edit session notes, or export everything to a **CSV** spreadsheet for Excel.
 
 ### How to Install & Run
-1. Download the latest Windows x64 build (`SV-Time-Tracker-win-x64.zip`) from the **[GitHub Releases page](https://github.com/softwarevantage/Sv.TmeTracker/releases/latest)** (or grab the latest CI build from **[GitHub Actions](https://github.com/softwarevantage/Sv.TmeTracker/actions/workflows/release.yml)**).
+1. Download the latest Windows x64 zip (`SV-Time-Tracker-v*-win-x64.zip`) from the **[Latest Release](https://github.com/softwarevantage/Sv.TmeTracker/releases/latest)** page, browse **[All Versions](https://github.com/softwarevantage/Sv.TmeTracker/releases)**, or grab the latest CI build from **[GitHub Actions](https://github.com/softwarevantage/Sv.TmeTracker/actions/workflows/release.yml)**.
 2. Extract the zip and double-click **`SV Time Tracker.exe`** to launch.
    - *Note*: The release zip is **self-contained**, so no extra .NET installation is required. (If you build a framework-dependent version yourself, it requires the [.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0).)
 3. Three starter tasks (*Deep Work*, *Meetings & Syncs*, *Code Review & Planning*) are created automatically so you can start tracking immediately.
@@ -96,6 +96,15 @@ dotnet publish Sv.TimeTracker\Sv.TimeTracker.csproj -c Release -r win-x64 --self
 
 Output path:
 `Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SV Time Tracker\SV Time Tracker.exe`
+
+### Cutting a New Release
+1. Bump `<Version>`, `<AssemblyVersion>`, `<FileVersion>`, and `<InformationalVersion>` in `Sv.TimeTracker\Sv.TimeTracker.csproj`.
+2. Commit your changes, then create and push a matching tag:
+   ```powershell
+   git tag v1.0.1
+   git push origin main --tags
+   ```
+3. GitHub Actions will run all tests and automatically publish `SV-Time-Tracker-v1.0.1-win-x64.zip` under **Releases**.
 
 ### Automation / Smoke Testing Flags
 - `--smoke-test`: Launches the app, initializes DI/SQLite/window chrome, and exits cleanly.

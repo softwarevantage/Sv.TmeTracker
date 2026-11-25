@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
@@ -76,6 +77,8 @@ public partial class SettingsViewModel : ObservableObject
     public string VolumeDisplay => $"{HourlyDingVolume}%";
 
     public string BackgroundOpacityDisplay => $"{BackgroundOpacity}%";
+
+    public string AppVersionDisplay { get; } = ResolveAppVersion();
 
     public string SoundFileDisplay => string.IsNullOrWhiteSpace(HourlyDingSoundPath)
         ? "Built-in Harmonic Chime"
@@ -239,5 +242,19 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnBackgroundOpacityChanged(int value)
     {
         BackgroundOpacityPreviewChanged?.Invoke(Math.Clamp(value, 35, 100));
+    }
+
+    private static string ResolveAppVersion()
+    {
+        var asm = typeof(SettingsViewModel).Assembly;
+        var infoVersion = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (!string.IsNullOrWhiteSpace(infoVersion))
+        {
+            var clean = infoVersion.Split('+')[0];
+            return $"v{clean}";
+        }
+
+        var v = asm.GetName().Version;
+        return v != null ? $"v{v.Major}.{v.Minor}.{v.Build}" : "v1.0.0";
     }
 }
