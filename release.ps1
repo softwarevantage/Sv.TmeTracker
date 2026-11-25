@@ -61,10 +61,8 @@ if ($Version -notmatch '^\d+\.\d+\.\d+$') {
 
 $tagName = "v$Version"
 $existingLocalTag = git tag -l $tagName
-if ($existingLocalTag) {
-    Write-Host "Tag '$tagName' already exists locally. Choose a higher version number." -ForegroundColor Red
-    exit 1
-}
+$existingRemoteTag = git ls-remote --tags origin "refs/tags/$tagName"
+$isOverwrite = [bool]($existingLocalTag -or $existingRemoteTag)
 
 $branch = (git rev-parse --abbrev-ref HEAD).Trim()
 
@@ -73,6 +71,9 @@ Write-Host "Release Plan:" -ForegroundColor Cyan
 Write-Host "  Branch:  $branch"
 Write-Host "  Version: $Version"
 Write-Host "  Tag:     $tagName"
+if ($isOverwrite) {
+    Write-Host "  Mode:    OVERWRITE existing tag & re-publish GitHub Release $tagName" -ForegroundColor Yellow
+}
 if ($Version -ne $currentVersion) {
     Write-Host "  Action:  Update .csproj -> Commit -> Push $branch -> Tag $tagName -> Push tag"
 } else {
@@ -86,7 +87,12 @@ if ($DryRun) {
 }
 
 Write-Host ""
-$confirm = Read-Host "Proceed and publish $tagName to GitHub? (y/N)"
+$promptText = if ($isOverwrite) {
+    "Tag '$tagName' already exists. Overwrite and re-publish $tagName to GitHub? (y/N)"
+} else {
+    "Proceed and publish $tagName to GitHub? (y/N)"
+}
+$confirm = Read-Host $promptText
 if ($confirm -notin @("y", "Y", "yes", "YES")) {
     Write-Host "Aborted." -ForegroundColor Yellow
     exit 0
@@ -108,11 +114,19 @@ if ($Version -ne $currentVersion) {
 git push origin $branch
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-git tag -a $tagName -m "Release $tagName"
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+if ($isOverwrite) {
+    git tag -fa $tagName -m "Release $tagName"
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-git push origin $tagName
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    git push origin $tagName --force
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+} else {
+    git tag -a $tagName -m "Release $tagName"
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    git push origin $tagName
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+}
 
 Write-Host ""
 Write-Host "Successfully pushed $tagName!" -ForegroundColor Green
