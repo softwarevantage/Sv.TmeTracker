@@ -1,0 +1,13 @@
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\Sv.TimeTracker.exe
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\Sv.TimeTracker.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\Sv.TimeTracker.deps.json
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\Sv.TimeTracker.runtimeconfig.json
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\Sv.TimeTracker.pdb
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\CommunityToolkit.Mvvm.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\Microsoft.Data.Sqlite.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\Microsoft.Extensions.DependencyInjection.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\SQLitePCLRaw.batteries_v2.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\SQLitePCLRaw.core.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\SQLitePCLRaw.provider.e_sqlite3.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\publish\e_sqlite3.dll

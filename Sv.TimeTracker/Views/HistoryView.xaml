@@ -1,0 +1,403 @@
+<UserControl x:Class="Sv.TimeTracker.Views.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="18,6,18,6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Header + Presets + Export -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="History"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextFillColorPrimary}"
+                           Margin="0,0,12,0" />
+                <Button Content="Today"
+                        Command="{Binding ApplyPresetCommand}"
+                        CommandParameter="Today"
+                        Style="{StaticResource SubtleButtonStyle}"
+                        Padding="8,4"
+                        FontSize="11.5"
+                        Margin="0,0,4,0" />
+                <Button Content="Week"
+                        Command="{Binding ApplyPresetCommand}"
+                        CommandParameter="Week"
+                        Style="{StaticResource SubtleButtonStyle}"
+                        Padding="8,4"
+                        FontSize="11.5"
+                        Margin="0,0,4,0" />
+                <Button Content="Month"
+                        Command="{Binding ApplyPresetCommand}"
+                        CommandParameter="Month"
+                        Style="{StaticResource SubtleButtonStyle}"
+                        Padding="8,4"
+                        FontSize="11.5"
+                        Margin="0,0,4,0" />
+                <Button Content="All"
+                        Command="{Binding ApplyPresetCommand}"
+                        CommandParameter="All"
+                        Style="{StaticResource SubtleButtonStyle}"
+                        Padding="8,4"
+                        FontSize="11.5" />
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Content="⬇ Export CSV"
+                    Command="{Binding ExportCsvCommand}"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Padding="12,6"
+                    FontSize="12.5" />
+        </Grid>
+
+        <!-- Row 1: Date Range & Work Item Filters -->
+        <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1.2*" />
+            </Grid.ColumnDefinitions>
+
+            <DatePicker Grid.Column="0"
+                        SelectedDate="{Binding StartDate, Mode=TwoWay}"
+                        Margin="0,0,6,0"
+                        ToolTip="Start Date" />
+            <DatePicker Grid.Column="1"
+                        SelectedDate="{Binding EndDate, Mode=TwoWay}"
+                        Margin="0,0,6,0"
+                        ToolTip="End Date" />
+            <ComboBox Grid.Column="2"
+                      ItemsSource="{Binding WorkItemOptions}"
+                      SelectedItem="{Binding SelectedWorkItemOption, Mode=TwoWay}"
+                      DisplayMemberPath="Title"
+                      ToolTip="Filter by Work Item" />
+        </Grid>
+
+        <!-- Row 2: KPI Summary Strip -->
+        <UniformGrid Grid.Row="2" Columns="3" Margin="0,0,0,10">
+            <Border Style="{StaticResource FrostedCardStyle}" Padding="10,8" Margin="0,0,5,0">
+                <StackPanel>
+                    <TextBlock Text="TOTAL TRACKED"
+                               FontSize="9.5"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextFillColorSecondary}" />
+                    <TextBlock Text="{Binding GrandTotalFormatted}"
+                               FontSize="15.5"
+                               FontWeight="SemiBold"
+                               Typography.NumeralAlignment="Tabular"
+                               Foreground="#38BDF8"
+                               Margin="0,2,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource FrostedCardStyle}" Padding="10,8" Margin="3,0,3,0">
+                <StackPanel>
+                    <TextBlock Text="SESSIONS"
+                               FontSize="9.5"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextFillColorSecondary}" />
+                    <TextBlock Text="{Binding TotalSessionCount}"
+                               FontSize="15.5"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextFillColorPrimary}"
+                               Margin="0,2,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource FrostedCardStyle}" Padding="10,8" Margin="5,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="TOP FOCUS"
+                               FontSize="9.5"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextFillColorSecondary}" />
+                    <TextBlock Text="{Binding TopWorkItemSummary}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextFillColorPrimary}"
+                               TextTrimming="CharacterEllipsis"
+                               Margin="0,4,0,0" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- Row 3: Section Switcher + Status -->
+        <Grid Grid.Row="3" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Button Content="Sessions"
+                        Command="{Binding SelectSectionCommand}"
+                        CommandParameter="Entries"
+                        Margin="0,0,6,0"
+                        Padding="12,5">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SubtleButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEntriesSection}" Value="True">
+                                    <Setter Property="Background" Value="#380EA5E9" />
+                                    <Setter Property="Foreground" Value="#38BDF8" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="By Task"
+                        Command="{Binding SelectSectionCommand}"
+                        CommandParameter="WorkItems"
+                        Margin="0,0,6,0"
+                        Padding="12,5">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SubtleButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsWorkItemsSection}" Value="True">
+                                    <Setter Property="Background" Value="#380EA5E9" />
+                                    <Setter Property="Foreground" Value="#38BDF8" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="By Day"
+                        Command="{Binding SelectSectionCommand}"
+                        CommandParameter="Days"
+                        Padding="12,5">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SubtleButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDaysSection}" Value="True">
+                                    <Setter Property="Background" Value="#380EA5E9" />
+                                    <Setter Property="Foreground" Value="#38BDF8" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+
+            <TextBlock Grid.Column="1"
+                       Text="{Binding StatusMessage}"
+                       FontSize="11.5"
+                       Foreground="{StaticResource SuccessBrush}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis"
+                       Visibility="{Binding StatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        </Grid>
+
+        <!-- Row 4: Section Lists -->
+        <Grid Grid.Row="4">
+            <!-- SESSIONS LIST -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Visibility="{Binding IsEntriesSection, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl ItemsSource="{Binding Entries}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource FrostedCardStyle}" Padding="12,10" Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Ellipse Grid.Column="0"
+                                             Width="10"
+                                             Height="10"
+                                             Fill="{Binding WorkItemColor, Converter={StaticResource HexColorToBrushConverter}}"
+                                             Margin="0,4,10,0"
+                                             VerticalAlignment="Top" />
+
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding WorkItemTitle}"
+                                                   FontSize="13.5"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextFillColorPrimary}" />
+                                        <TextBlock Text="{Binding TimeRangeDisplay}"
+                                                   FontSize="11.5"
+                                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                                   Margin="0,2,0,0" />
+                                        <TextBlock Text="{Binding Notes}"
+                                                   FontSize="11.5"
+                                                   Foreground="#CBD5E1"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,4,0,0"
+                                                   Visibility="{Binding Notes, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DurationFormatted}"
+                                                   FontSize="13.5"
+                                                   FontWeight="SemiBold"
+                                                   Typography.NumeralAlignment="Tabular"
+                                                   HorizontalAlignment="Right"
+                                                   Foreground="{StaticResource TextFillColorPrimary}" />
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
+                                            <Button Content="✎"
+                                                    ToolTip="Edit session notes"
+                                                    Command="{Binding DataContext.BeginEditEntryNotesCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource SubtleButtonStyle}"
+                                                    Padding="6,2"
+                                                    FontSize="11"
+                                                    Margin="0,0,4,0" />
+                                            <Button Content="🗑"
+                                                    ToolTip="Delete time entry"
+                                                    Command="{Binding DataContext.DeleteEntryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource SubtleButtonStyle}"
+                                                    Padding="6,2"
+                                                    FontSize="11" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- WORK ITEM TOTALS WITH PROGRESS BARS -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Visibility="{Binding IsWorkItemsSection, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl ItemsSource="{Binding WorkItemTotals}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource FrostedCardStyle}" Padding="12,10" Margin="0,0,0,8">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Ellipse Grid.Column="0"
+                                                 Width="10"
+                                                 Height="10"
+                                                 Fill="{Binding Color, Converter={StaticResource HexColorToBrushConverter}}"
+                                                 Margin="0,0,8,0"
+                                                 VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding Title}"
+                                                   FontSize="13.5"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextFillColorPrimary}" />
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                            <TextBlock Text="{Binding ShareDisplay}"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource TextFillColorSecondary}"
+                                                       Margin="0,0,8,0"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding TotalFormatted}"
+                                                       FontSize="13.5"
+                                                       FontWeight="SemiBold"
+                                                       Typography.NumeralAlignment="Tabular"
+                                                       Foreground="#38BDF8" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Progress Bar Track -->
+                                    <Border Background="#1AFFFFFF"
+                                            Height="7"
+                                            CornerRadius="3.5"
+                                            Margin="0,8,0,0">
+                                        <Border HorizontalAlignment="Left"
+                                                Height="7"
+                                                CornerRadius="3.5"
+                                                Width="{Binding ShareRatio, Converter={StaticResource RatioToWidthConverter}, ConverterParameter=390}"
+                                                Background="{Binding Color, Converter={StaticResource HexColorToBrushConverter}}" />
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- DAILY TOTALS -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Visibility="{Binding IsDaysSection, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl ItemsSource="{Binding DailyTotals}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource FrostedCardStyle}" Padding="12,10" Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding DateDisplay}"
+                                                   FontSize="13.5"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextFillColorPrimary}" />
+                                        <TextBlock Text="{Binding EntryCountDisplay}"
+                                                   FontSize="11.5"
+                                                   Foreground="{StaticResource TextFillColorSecondary}" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding TotalFormatted}"
+                                               FontSize="15"
+                                               FontWeight="SemiBold"
+                                               Typography.NumeralAlignment="Tabular"
+                                               VerticalAlignment="Center"
+                                               Foreground="#38BDF8" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Inline Session Notes Edit Overlay -->
+        <Border Grid.RowSpan="5"
+                Background="{StaticResource ModalOverlayBrush}"
+                CornerRadius="12"
+                Padding="20"
+                Visibility="{Binding EditingEntry, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Style="{StaticResource FrostedCardStyle}"
+                    Background="#F2111827"
+                    VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="Edit Session Notes"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextFillColorPrimary}"
+                               Margin="0,0,0,10" />
+                    <TextBox Text="{Binding EditingEntryNotes, UpdateSourceTrigger=PropertyChanged}"
+                             Height="72"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             Padding="8,6"
+                             Margin="0,0,0,12" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancel"
+                                Command="{Binding CancelEditEntryNotesCommand}"
+                                Style="{StaticResource SubtleButtonStyle}"
+                                Width="80"
+                                Margin="0,0,8,0" />
+                        <Button Content="Save"
+                                Command="{Binding SaveEntryNotesCommand}"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Width="88" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

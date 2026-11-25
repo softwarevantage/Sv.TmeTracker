@@ -1,0 +1,10 @@
+namespace Sv.TimeTracker.Models;
+
+public class WorkItem
+{
+    public long Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string Color { get; set; } = "#0078D4";
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}

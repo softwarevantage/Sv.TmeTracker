@@ -1,0 +1,243 @@
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.IO;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
+using Sv.TimeTracker.Data.Repositories;
+using Sv.TimeTracker.Models;
+using Sv.TimeTracker.Services;
+
+namespace Sv.TimeTracker.ViewModels;
+
+public partial class SettingsViewModel : ObservableObject
+{
+    private readonly ISettingsRepository _settingsRepo;
+    private readonly IWorkItemRepository _workItemRepo;
+    private readonly INotificationService _notificationService;
+    private readonly IHotkeyService _hotkeyService;
+
+    public ObservableCollection<WorkItemFilterOption> DefaultWorkItemOptions { get; } = [];
+
+    [ObservableProperty]
+    private WorkItemFilterOption? _selectedDefaultWorkItem;
+
+    [ObservableProperty]
+    private bool _topmostEnabled = true;
+
+    [ObservableProperty]
+    private bool _minimizeToTray = true;
+
+    [ObservableProperty]
+    private bool _persistWindowBounds = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(BackgroundOpacityDisplay))]
+    private int _backgroundOpacity = 80;
+
+    [ObservableProperty]
+    private bool _hourlyDingEnabled = true;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(VolumeDisplay))]
+    private int _hourlyDingVolume = 60;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SoundFileDisplay))]
+    private string _hourlyDingSoundPath = string.Empty;
+
+    [ObservableProperty]
+    private string _quietHoursStart = "22:00";
+
+    [ObservableProperty]
+    private string _quietHoursEnd = "07:00";
+
+    [ObservableProperty]
+    private bool _globalHotkeyEnabled = true;
+
+    [ObservableProperty]
+    private string _toggleTimerHotkey = "Ctrl+Shift+T";
+
+    [ObservableProperty]
+    private string _showHideHotkey = "Ctrl+Shift+H";
+
+    [ObservableProperty]
+    private string _workItemsHotkey = "Ctrl+Shift+W";
+
+    [ObservableProperty]
+    private string? _statusMessage;
+
+    [ObservableProperty]
+    private bool _hasValidationError;
+
+    [ObservableProperty]
+    private string _hotkeyWarningsText = string.Empty;
+
+    public string VolumeDisplay => $"{HourlyDingVolume}%";
+
+    public string BackgroundOpacityDisplay => $"{BackgroundOpacity}%";
+
+    public string SoundFileDisplay => string.IsNullOrWhiteSpace(HourlyDingSoundPath)
+        ? "Built-in Harmonic Chime"
+        : Path.GetFileName(HourlyDingSoundPath);
+
+    public event Action<SettingsSnapshot>? SettingsSaved;
+    public event Action<int>? BackgroundOpacityPreviewChanged;
+
+    public SettingsViewModel(
+        ISettingsRepository settingsRepo,
+        IWorkItemRepository workItemRepo,
+        INotificationService notificationService,
+        IHotkeyService hotkeyService)
+    {
+        _settingsRepo = settingsRepo;
+        _workItemRepo = workItemRepo;
+        _notificationService = notificationService;
+        _hotkeyService = hotkeyService;
+    }
+
+    public async Task LoadAsync()
+    {
+        var items = (await _workItemRepo.GetAllAsync()).ToList();
+        var defaultId = await _settingsRepo.GetLongAsync(SettingKeys.DefaultWorkItemId, 0);
+
+        var topmost = await _settingsRepo.GetBoolAsync(SettingKeys.TopmostEnabled, true);
+        var minimizeToTray = await _settingsRepo.GetBoolAsync(SettingKeys.MinimizeToTray, true);
+        var persistBounds = await _settingsRepo.GetBoolAsync(SettingKeys.PersistWindowBounds, true);
+        var bgOpacity = await _settingsRepo.GetIntAsync(SettingKeys.BackgroundOpacity, 80);
+        var dingEnabled = await _settingsRepo.GetBoolAsync(SettingKeys.HourlyDingEnabled, true);
+        var dingVolume = await _settingsRepo.GetIntAsync(SettingKeys.HourlyDingVolume, 60);
+        var soundPath = await _settingsRepo.GetAsync(SettingKeys.HourlyDingSoundPath) ?? string.Empty;
+        var quietStart = await _settingsRepo.GetAsync(SettingKeys.QuietHoursStart) ?? "22:00";
+        var quietEnd = await _settingsRepo.GetAsync(SettingKeys.QuietHoursEnd) ?? "07:00";
+        var hotkeysEnabled = await _settingsRepo.GetBoolAsync(SettingKeys.GlobalHotkeyEnabled, true);
+        var toggleHotkey = await _settingsRepo.GetAsync(SettingKeys.ToggleTimerHotkey) ?? "Ctrl+Shift+T";
+        var showHideHotkey = await _settingsRepo.GetAsync(SettingKeys.ShowHideHotkey) ?? "Ctrl+Shift+H";
+        var workItemsHotkey = await _settingsRepo.GetAsync(SettingKeys.WorkItemsHotkey) ?? "Ctrl+Shift+W";
+
+        UiDispatcher.Invoke(() =>
+        {
+            DefaultWorkItemOptions.Clear();
+            var noneOption = new WorkItemFilterOption(0, "Remember Last Selected");
+            DefaultWorkItemOptions.Add(noneOption);
+            foreach (var item in items)
+            {
+                DefaultWorkItemOptions.Add(new WorkItemFilterOption(item.Id, item.Title, item.Color));
+            }
+
+            SelectedDefaultWorkItem = DefaultWorkItemOptions.FirstOrDefault(o => o.Id == defaultId) ?? noneOption;
+            TopmostEnabled = topmost;
+            MinimizeToTray = minimizeToTray;
+            PersistWindowBounds = persistBounds;
+            BackgroundOpacity = Math.Clamp(bgOpacity, 35, 100);
+            HourlyDingEnabled = dingEnabled;
+            HourlyDingVolume = Math.Clamp(dingVolume, 0, 100);
+            HourlyDingSoundPath = soundPath;
+            QuietHoursStart = quietStart;
+            QuietHoursEnd = quietEnd;
+            GlobalHotkeyEnabled = hotkeysEnabled;
+            ToggleTimerHotkey = toggleHotkey;
+            ShowHideHotkey = showHideHotkey;
+            WorkItemsHotkey = workItemsHotkey;
+            HotkeyWarningsText = string.Join("  ", _hotkeyService.RegistrationWarnings);
+        });
+    }
+
+    [RelayCommand]
+    public void TestChime()
+    {
+        _notificationService.PlayTestChime(Math.Max(15, HourlyDingVolume), HourlyDingSoundPath);
+    }
+
+    [RelayCommand]
+    public void BrowseSoundFile()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Select Chime Sound",
+            Filter = "Audio Files (*.wav;*.mp3)|*.wav;*.mp3|All Files (*.*)|*.*"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            HourlyDingSoundPath = dialog.FileName;
+        }
+    }
+
+    [RelayCommand]
+    public void ClearSoundFile()
+    {
+        HourlyDingSoundPath = string.Empty;
+    }
+
+    [RelayCommand]
+    public void ResetDefaultHotkeys()
+    {
+        ToggleTimerHotkey = "Ctrl+Shift+T";
+        ShowHideHotkey = "Ctrl+Shift+H";
+        WorkItemsHotkey = "Ctrl+Shift+W";
+    }
+
+    [RelayCommand]
+    public async Task SaveSettingsAsync()
+    {
+        HasValidationError = false;
+
+        if (!string.IsNullOrWhiteSpace(QuietHoursStart) && !TimeSpan.TryParse(QuietHoursStart, out _))
+        {
+            HasValidationError = true;
+            StatusMessage = "Quiet Hours Start must be HH:MM (e.g. 22:00).";
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(QuietHoursEnd) && !TimeSpan.TryParse(QuietHoursEnd, out _))
+        {
+            HasValidationError = true;
+            StatusMessage = "Quiet Hours End must be HH:MM (e.g. 07:00).";
+            return;
+        }
+
+        if (GlobalHotkeyEnabled)
+        {
+            if (!HotkeyParser.TryParse(ToggleTimerHotkey, out var b1) ||
+                !HotkeyParser.TryParse(ShowHideHotkey, out var b2) ||
+                !HotkeyParser.TryParse(WorkItemsHotkey, out var b3))
+            {
+                HasValidationError = true;
+                StatusMessage = "Shortcuts must include Ctrl, Alt, Shift, or Win + a key (e.g. Ctrl+Shift+T).";
+                return;
+            }
+
+            ToggleTimerHotkey = b1.DisplayText;
+            ShowHideHotkey = b2.DisplayText;
+            WorkItemsHotkey = b3.DisplayText;
+        }
+
+        var defaultWorkItemId = SelectedDefaultWorkItem?.Id ?? 0;
+        await _settingsRepo.SetAsync(SettingKeys.DefaultWorkItemId, defaultWorkItemId.ToString(CultureInfo.InvariantCulture));
+        await _settingsRepo.SetAsync(SettingKeys.TopmostEnabled, TopmostEnabled.ToString().ToLowerInvariant());
+        await _settingsRepo.SetAsync(SettingKeys.MinimizeToTray, MinimizeToTray.ToString().ToLowerInvariant());
+        await _settingsRepo.SetAsync(SettingKeys.PersistWindowBounds, PersistWindowBounds.ToString().ToLowerInvariant());
+        await _settingsRepo.SetAsync(SettingKeys.BackgroundOpacity, Math.Clamp(BackgroundOpacity, 35, 100).ToString(CultureInfo.InvariantCulture));
+        await _settingsRepo.SetAsync(SettingKeys.HourlyDingEnabled, HourlyDingEnabled.ToString().ToLowerInvariant());
+        await _settingsRepo.SetAsync(SettingKeys.HourlyDingVolume, HourlyDingVolume.ToString(CultureInfo.InvariantCulture));
+        await _settingsRepo.SetAsync(SettingKeys.HourlyDingSoundPath, HourlyDingSoundPath);
+        await _settingsRepo.SetAsync(SettingKeys.QuietHoursStart, QuietHoursStart.Trim());
+        await _settingsRepo.SetAsync(SettingKeys.QuietHoursEnd, QuietHoursEnd.Trim());
+        await _settingsRepo.SetAsync(SettingKeys.GlobalHotkeyEnabled, GlobalHotkeyEnabled.ToString().ToLowerInvariant());
+        await _settingsRepo.SetAsync(SettingKeys.ToggleTimerHotkey, ToggleTimerHotkey);
+        await _settingsRepo.SetAsync(SettingKeys.ShowHideHotkey, ShowHideHotkey);
+        await _settingsRepo.SetAsync(SettingKeys.WorkItemsHotkey, WorkItemsHotkey);
+
+        await _hotkeyService.ReloadBindingsAsync();
+        HotkeyWarningsText = string.Join("  ", _hotkeyService.RegistrationWarnings);
+
+        StatusMessage = "Settings saved and applied.";
+        SettingsSaved?.Invoke(new SettingsSnapshot(TopmostEnabled, MinimizeToTray, PersistWindowBounds, Math.Clamp(BackgroundOpacity, 35, 100)));
+    }
+
+    partial void OnBackgroundOpacityChanged(int value)
+    {
+        BackgroundOpacityPreviewChanged?.Invoke(Math.Clamp(value, 35, 100));
+    }
+}

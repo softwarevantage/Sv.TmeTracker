@@ -1,0 +1,40 @@
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\CommunityToolkit.Mvvm.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\Microsoft.Data.Sqlite.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\Microsoft.Extensions.DependencyInjection.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SQLitePCLRaw.batteries_v2.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SQLitePCLRaw.core.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SQLitePCLRaw.provider.e_sqlite3.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\e_sqlite3.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Sv.TimeTracker.csproj.AssemblyReference.cache
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Controls\MainTimerControl.baml
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Views\HistoryView.baml
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Views\SettingsView.baml
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Views\WorkItemsView.baml
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Controls\MainTimerControl.g.cs
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\MainWindow.g.cs
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Views\HistoryView.g.cs
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Views\SettingsView.g.cs
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Views\WorkItemsView.g.cs
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\App.g.cs
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\GeneratedInternalTypeHelper.g.cs
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\App.baml
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\MainWindow.baml
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Sv.TimeTracker.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Sv.TimeTracker.AssemblyInfoInputs.cache
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Sv.TimeTracker.AssemblyInfo.cs
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Sv.TimeTracker.csproj.CoreCompileInputs.cache
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Sv.TimeT.28275DAC.Up2Date
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\Sv.TimeTracker.genruntimeconfig.cache
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SV Time Tracker.exe
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SV Time Tracker.deps.json
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SV Time Tracker.runtimeconfig.json
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SV Time Tracker.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\bin\Release\net10.0-windows\win-x64\SV Time Tracker.pdb
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\SV Time Tracker_MarkupCompile.cache
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\SV Time Tracker_MarkupCompile.lref
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\SV Time Tracker.g.resources
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\SV Time Tracker.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\refint\SV Time Tracker.dll
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\SV Time Tracker.pdb
+C:\Dev-SV\Products\Sv.TmeTracker\Sv.TimeTracker\obj\Release\net10.0-windows\win-x64\ref\SV Time Tracker.dll

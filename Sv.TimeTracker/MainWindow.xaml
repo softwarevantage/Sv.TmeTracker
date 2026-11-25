@@ -1,0 +1,217 @@
+<Window x:Class="Sv.TimeTracker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:Sv.TimeTracker.Controls"
+        xmlns:views="clr-namespace:Sv.TimeTracker.Views"
+        mc:Ignorable="d"
+        Title="SV Time Tracker"
+        Icon="pack://application:,,,/Assets/app.ico"
+        Width="480"
+        Height="648"
+        MinWidth="390"
+        MinHeight="528"
+        Style="{x:Null}"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        Background="Transparent"
+        Topmost="{Binding IsTopmost, Mode=TwoWay}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="50"
+                      GlassFrameThickness="-1"
+                      CornerRadius="8"
+                      ResizeBorderThickness="6"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Border x:Name="ShellRootBorder"
+            Background="{Binding ShellBackgroundBrush}"
+            BorderBrush="{StaticResource GlassBorderBrush}"
+            BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Custom Frosted Title Bar (opaque to prevent Windows DWM 32px caption bleed-through) -->
+            <Border Grid.Row="0"
+                    Background="#FF121B2E"
+                    BorderBrush="#1FFFFFFF"
+                    BorderThickness="0,0,0,1"
+                    Padding="14,0,10,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Image Source="pack://application:,,,/Assets/app.ico"
+                               Width="20"
+                               Height="20"
+                               Margin="0,0,8,0"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               VerticalAlignment="Center" />
+                        <TextBlock Text="SV Time Tracker"
+                                   FontSize="13.5"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextFillColorPrimary}"
+                                   VerticalAlignment="Center" />
+                        <Ellipse Width="8"
+                                 Height="8"
+                                 Margin="8,1,0,0"
+                                 VerticalAlignment="Center">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill" Value="#64748B" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsTimerRunning}" Value="True">
+                                            <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsTimerPaused}" Value="True">
+                                            <Setter Property="Fill" Value="#F59E0B" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                    </StackPanel>
+
+                    <!-- Window Chrome Controls -->
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
+                        <ToggleButton Content="◰"
+                                      ToolTip="Compact Mini-Timer Mode"
+                                      IsChecked="{Binding IsCompactMode, Mode=TwoWay}"
+                                      Style="{StaticResource ChromeToggleButtonStyle}"
+                                      Margin="0,0,4,0" />
+                        <ToggleButton x:Name="TopmostToggle"
+                                      Content="📌"
+                                      ToolTip="Always on Top"
+                                      IsChecked="{Binding IsTopmost, Mode=TwoWay}"
+                                      Style="{StaticResource ChromeToggleButtonStyle}"
+                                      Margin="0,0,6,0" />
+                        <Button Content="─"
+                                ToolTip="Minimize"
+                                Click="MinimizeButton_Click"
+                                Style="{StaticResource ChromeIconButtonStyle}"
+                                Margin="0,0,4,0" />
+                        <Button Content="✕"
+                                ToolTip="Close"
+                                Click="CloseButton_Click"
+                                Style="{StaticResource ChromeIconButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Active View Content -->
+            <Grid Grid.Row="1">
+                <Border Visibility="{Binding IsTimerTab, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <controls:MainTimerControl x:Name="MainTimerControl" DataContext="{Binding Timer}" />
+                </Border>
+
+                <Border Visibility="{Binding IsWorkItemsTab, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <views:WorkItemsView DataContext="{Binding WorkItems}" />
+                </Border>
+
+                <Border Visibility="{Binding IsHistoryTab, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <views:HistoryView DataContext="{Binding History}" />
+                </Border>
+
+                <Border Visibility="{Binding IsSettingsTab, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <views:SettingsView DataContext="{Binding Settings}" />
+                </Border>
+            </Grid>
+
+            <!-- Bottom Frosted Navigation Bar (Hidden in Compact Mode) -->
+            <Border Grid.Row="2"
+                    Margin="14,6,14,12"
+                    Padding="6"
+                    Background="#1EFFFFFF"
+                    BorderBrush="#22FFFFFF"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Visibility="{Binding IsCompactMode, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                <UniformGrid Columns="4">
+                    <Button Content="⏱ Timer"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Timer"
+                            Margin="2,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SubtleButtonStyle}">
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsTimerTab}" Value="True">
+                                        <Setter Property="Background" Value="#380EA5E9" />
+                                        <Setter Property="Foreground" Value="#38BDF8" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="📋 Tasks"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="WorkItems"
+                            Margin="2,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SubtleButtonStyle}">
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsWorkItemsTab}" Value="True">
+                                        <Setter Property="Background" Value="#380EA5E9" />
+                                        <Setter Property="Foreground" Value="#38BDF8" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="📊 History"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="History"
+                            Margin="2,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SubtleButtonStyle}">
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsHistoryTab}" Value="True">
+                                        <Setter Property="Background" Value="#380EA5E9" />
+                                        <Setter Property="Foreground" Value="#38BDF8" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="⚙ Settings"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Settings"
+                            Margin="2,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SubtleButtonStyle}">
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSettingsTab}" Value="True">
+                                        <Setter Property="Background" Value="#380EA5E9" />
+                                        <Setter Property="Foreground" Value="#38BDF8" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </UniformGrid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
