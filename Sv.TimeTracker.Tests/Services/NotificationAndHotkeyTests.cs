@@ -78,6 +78,25 @@ public class NotificationAndHotkeyTests
     }
 
     [Fact]
+    public async Task NotificationService_ChimesWhenStopped_WhenChimeWhenTimerStoppedEnabled()
+    {
+        using var db = new TempDatabaseFixture(seedStarterWorkItems: false);
+        await db.Settings.SetAsync(SettingKeys.ChimeWhenTimerStopped, "true");
+
+        var clock = new AdjustableTimeProvider(
+            new DateTimeOffset(2026, 11, 24, 16, 0, 0, TimeSpan.Zero),
+            TimeZoneInfo.Utc);
+
+        using var timer = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false, db.Settings);
+        var audioMock = new Mock<IAudioChimePlayer>();
+        var notification = new NotificationService(timer, db.Settings, audioMock.Object, clock);
+
+        Assert.False(timer.IsRunning);
+        await notification.CheckHourlyDingAsync();
+        audioMock.Verify(a => a.PlayChime(60, string.Empty), Times.Once);
+    }
+
+    [Fact]
     public void SynthesizedAudioChimePlayer_BuildsValidRiffWaveStream()
     {
         using var wav = SynthesizedAudioChimePlayer.BuildTwoToneChimeWav(0.75);

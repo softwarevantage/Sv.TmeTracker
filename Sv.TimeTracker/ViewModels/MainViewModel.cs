@@ -73,6 +73,7 @@ public partial class MainViewModel : ObservableObject
         _notificationService = notificationService;
         _trayIconService = trayIconService;
 
+        _timerService.ClockTicked += OnClockTicked;
         _timerService.TimerTicked += OnTimerTicked;
         _timerService.TimerStateChanged += OnTimerStateChanged;
 
@@ -181,9 +182,13 @@ public partial class MainViewModel : ObservableObject
         IsCompactMode = !IsCompactMode;
     }
 
-    private void OnTimerTicked()
+    private void OnClockTicked()
     {
         _ = _notificationService.CheckHourlyDingAsync();
+    }
+
+    private void OnTimerTicked()
+    {
         SyncTrayState();
     }
 

@@ -159,11 +159,6 @@ public sealed class NotificationService : INotificationService
 
     public async Task CheckHourlyDingAsync()
     {
-        if (!_timerService.IsRunning)
-        {
-            return;
-        }
-
         var localNow = _timeProvider.GetLocalNow().DateTime;
         if (localNow.Minute is not (0 or 30))
         {
@@ -188,6 +183,15 @@ public sealed class NotificationService : INotificationService
         if (!enabled)
         {
             return;
+        }
+
+        if (!_timerService.IsRunning)
+        {
+            var chimeWhenStopped = await _settingsRepo.GetBoolAsync(SettingKeys.ChimeWhenTimerStopped, false);
+            if (!chimeWhenStopped)
+            {
+                return;
+            }
         }
 
         if (localNow.Minute == 30)

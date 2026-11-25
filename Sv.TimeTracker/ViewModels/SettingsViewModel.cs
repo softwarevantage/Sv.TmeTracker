@@ -31,6 +31,7 @@ public partial class SettingsViewModel : ObservableObject
         int BackgroundOpacity,
         bool HourlyDingEnabled,
         bool HalfHourDingEnabled,
+        bool ChimeWhenTimerStopped,
         int HourlyDingVolume,
         string HourlyDingSoundPath,
         string QuietHoursStart,
@@ -63,6 +64,9 @@ public partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _halfHourDingEnabled = true;
+
+    [ObservableProperty]
+    private bool _chimeWhenTimerStopped;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VolumeDisplay))]
@@ -141,6 +145,7 @@ public partial class SettingsViewModel : ObservableObject
         var bgOpacity = await _settingsRepo.GetIntAsync(SettingKeys.BackgroundOpacity, 80);
         var dingEnabled = await _settingsRepo.GetBoolAsync(SettingKeys.HourlyDingEnabled, true);
         var halfHourEnabled = await _settingsRepo.GetBoolAsync(SettingKeys.HalfHourDingEnabled, true);
+        var chimeWhenStopped = await _settingsRepo.GetBoolAsync(SettingKeys.ChimeWhenTimerStopped, false);
         var dingVolume = await _settingsRepo.GetIntAsync(SettingKeys.HourlyDingVolume, 60);
         var soundPath = await _settingsRepo.GetAsync(SettingKeys.HourlyDingSoundPath) ?? string.Empty;
         var quietStart = await _settingsRepo.GetAsync(SettingKeys.QuietHoursStart) ?? "22:00";
@@ -170,6 +175,7 @@ public partial class SettingsViewModel : ObservableObject
                 BackgroundOpacity = Math.Clamp(bgOpacity, 35, 100);
                 HourlyDingEnabled = dingEnabled;
                 HalfHourDingEnabled = halfHourEnabled;
+                ChimeWhenTimerStopped = chimeWhenStopped;
                 HourlyDingVolume = Math.Clamp(dingVolume, 0, 100);
                 HourlyDingSoundPath = soundPath;
                 QuietHoursStart = quietStart;
@@ -316,6 +322,7 @@ public partial class SettingsViewModel : ObservableObject
         await _settingsRepo.SetAsync(SettingKeys.BackgroundOpacity, Math.Clamp(BackgroundOpacity, 35, 100).ToString(CultureInfo.InvariantCulture));
         await _settingsRepo.SetAsync(SettingKeys.HourlyDingEnabled, HourlyDingEnabled.ToString().ToLowerInvariant());
         await _settingsRepo.SetAsync(SettingKeys.HalfHourDingEnabled, HalfHourDingEnabled.ToString().ToLowerInvariant());
+        await _settingsRepo.SetAsync(SettingKeys.ChimeWhenTimerStopped, ChimeWhenTimerStopped.ToString().ToLowerInvariant());
         await _settingsRepo.SetAsync(SettingKeys.HourlyDingVolume, HourlyDingVolume.ToString(CultureInfo.InvariantCulture));
         await _settingsRepo.SetAsync(SettingKeys.HourlyDingSoundPath, HourlyDingSoundPath);
         await _settingsRepo.SetAsync(SettingKeys.QuietHoursStart, QuietHoursStart.Trim());
@@ -379,6 +386,7 @@ public partial class SettingsViewModel : ObservableObject
         BackgroundOpacity: Math.Clamp(BackgroundOpacity, 35, 100),
         HourlyDingEnabled: HourlyDingEnabled,
         HalfHourDingEnabled: HalfHourDingEnabled,
+        ChimeWhenTimerStopped: ChimeWhenTimerStopped,
         HourlyDingVolume: Math.Clamp(HourlyDingVolume, 0, 100),
         HourlyDingSoundPath: HourlyDingSoundPath ?? string.Empty,
         QuietHoursStart: (QuietHoursStart ?? string.Empty).Trim(),

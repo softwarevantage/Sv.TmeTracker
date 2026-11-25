@@ -15,6 +15,7 @@ public interface ITimerService : IDisposable
     long ElapsedMilliseconds { get; }
     TimeSpan Elapsed { get; }
 
+    event Action? ClockTicked;
     event Action? TimerTicked;
     event Action? TimerStateChanged;
 
@@ -46,6 +47,7 @@ public sealed class TimerService : ITimerService
     private bool _isPaused;
     private bool _disposed;
 
+    public event Action? ClockTicked;
     public event Action? TimerTicked;
     public event Action? TimerStateChanged;
 
@@ -318,6 +320,7 @@ public sealed class TimerService : ITimerService
 
     public void Tick()
     {
+        ClockTicked?.Invoke();
         if (_isRunning)
         {
             TimerTicked?.Invoke();

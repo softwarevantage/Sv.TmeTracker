@@ -116,6 +116,7 @@ public sealed class SqliteConnectionFactory : ISqliteConnectionFactory
             (SettingKeys.BackgroundOpacity, "80"),
             (SettingKeys.HourlyDingEnabled, "true"),
             (SettingKeys.HalfHourDingEnabled, "true"),
+            (SettingKeys.ChimeWhenTimerStopped, "false"),
             (SettingKeys.HourlyDingVolume, "60"),
             (SettingKeys.HourlyDingSoundPath, string.Empty),
             (SettingKeys.QuietHoursStart, "22:00"),
