@@ -15,7 +15,7 @@ public class ViewModelWorkflowTests
         using var db = new TempDatabaseFixture(seedStarterWorkItems: true);
         var clock = new AdjustableTimeProvider(new DateTimeOffset(2026, 11, 24, 16, 0, 0, TimeSpan.Zero));
 
-        using var timerService = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false);
+        using var timerService = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false, db.Settings);
         var audioMock = new Mock<IAudioChimePlayer>();
         var notificationService = new NotificationService(timerService, db.Settings, audioMock.Object, clock);
         var hotkeyMock = new Mock<IHotkeyService>();

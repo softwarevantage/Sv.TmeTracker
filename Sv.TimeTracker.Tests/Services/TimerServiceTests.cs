@@ -14,7 +14,7 @@ public class TimerServiceTests
         var item = await db.WorkItems.CreateAsync(new WorkItem { Title = "API Refactor" });
 
         var clock = new AdjustableTimeProvider(new DateTimeOffset(2026, 11, 24, 15, 0, 0, TimeSpan.Zero));
-        using var timer = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false);
+        using var timer = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false, db.Settings);
 
         await timer.StartAsync(item.Id, "Initial implementation");
         Assert.True(timer.IsRunning);
@@ -43,7 +43,7 @@ public class TimerServiceTests
         var second = await db.WorkItems.CreateAsync(new WorkItem { Title = "Task 2" });
 
         var clock = new AdjustableTimeProvider(new DateTimeOffset(2026, 11, 24, 10, 0, 0, TimeSpan.Zero));
-        using var timer = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false);
+        using var timer = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false, db.Settings);
 
         await timer.StartAsync(first.Id);
         clock.Advance(TimeSpan.FromMinutes(30));

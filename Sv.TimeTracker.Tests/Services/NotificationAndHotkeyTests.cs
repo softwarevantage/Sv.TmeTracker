@@ -21,7 +21,7 @@ public class NotificationAndHotkeyTests
             new DateTimeOffset(2026, 11, 24, 14, 0, 5, TimeSpan.Zero),
             TimeZoneInfo.Utc);
 
-        using var timer = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false);
+        using var timer = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false, db.Settings);
         var audioMock = new Mock<IAudioChimePlayer>();
         var notification = new NotificationService(timer, db.Settings, audioMock.Object, clock);
 
