@@ -216,15 +216,45 @@ public class TimeEntryRepository : ITimeEntryRepository
             ORDER BY t.StartTime DESC";
 
         var utcNow = DateTime.UtcNow;
+
+        // Open entries accrue live time only from the active (unpaused) segment.
+        long pausedEntryId = 0;
+        DateTime? activeSegmentStartUtc = null;
+        using (var settingsCmd = connection.CreateCommand())
+        {
+            settingsCmd.CommandText = "SELECT Key, Value FROM Settings WHERE Key IN (@Paused, @Segment)";
+            settingsCmd.Parameters.AddWithValue("@Paused", SettingKeys.PausedEntryId);
+            settingsCmd.Parameters.AddWithValue("@Segment", SettingKeys.ActiveSegmentStartUtc);
+            using var settingsReader = await settingsCmd.ExecuteReaderAsync();
+            while (await settingsReader.ReadAsync())
+            {
+                var key = settingsReader.GetString(0);
+                var value = settingsReader.IsDBNull(1) ? string.Empty : settingsReader.GetString(1);
+                if (key == SettingKeys.PausedEntryId)
+                {
+                    long.TryParse(value, System.Globalization.NumberStyles.Integer,
+                        System.Globalization.CultureInfo.InvariantCulture, out pausedEntryId);
+                }
+                else if (!string.IsNullOrWhiteSpace(value))
+                {
+                    activeSegmentStartUtc = DatabaseHelper.ParseUtc(value);
+                }
+            }
+        }
+
         using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
         {
             var startUtc = DatabaseHelper.ParseUtc(reader.GetString(4));
             var endUtc = reader.IsDBNull(5) ? (DateTime?)null : DatabaseHelper.ParseUtc(reader.GetString(5));
             var storedDurationMs = reader.GetInt64(6);
-            var effectiveDurationMs = endUtc.HasValue
-                ? storedDurationMs
-                : storedDurationMs + (long)Math.Max(0, (utcNow - startUtc).TotalMilliseconds);
+            var entryId = reader.GetInt64(0);
+            var effectiveDurationMs = storedDurationMs;
+            if (!endUtc.HasValue && entryId != pausedEntryId)
+            {
+                var segmentStart = activeSegmentStartUtc ?? startUtc;
+                effectiveDurationMs += (long)Math.Max(0, (utcNow - segmentStart).TotalMilliseconds);
+            }
 
             results.Add(new EnrichedTimeEntry
             {
