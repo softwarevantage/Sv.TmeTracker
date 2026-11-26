@@ -65,7 +65,7 @@
                                     <Setter Property="Text" Value="SV Time Tracker" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsCompactMode}" Value="True">
-                                            <Setter Property="Text" Value="SV TT" />
+                                            <Setter Property="Text" Value="" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
