@@ -29,6 +29,7 @@ public partial class SettingsViewModel : ObservableObject
         bool MinimizeToTray,
         bool PersistWindowBounds,
         int BackgroundOpacity,
+        string AppTheme,
         bool HourlyDingEnabled,
         bool HalfHourDingEnabled,
         bool ChimeWhenTimerStopped,
@@ -42,6 +43,7 @@ public partial class SettingsViewModel : ObservableObject
         string WorkItemsHotkey);
 
     public ObservableCollection<WorkItemFilterOption> DefaultWorkItemOptions { get; } = [];
+    public IReadOnlyList<string> ThemeOptions { get; } = ["System", "Dark", "Light"];
 
     [ObservableProperty]
     private WorkItemFilterOption? _selectedDefaultWorkItem;
@@ -58,6 +60,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(BackgroundOpacityDisplay))]
     private int _backgroundOpacity = 80;
+
+    [ObservableProperty]
+    private string _appTheme = "System";
 
     [ObservableProperty]
     private bool _hourlyDingEnabled = true;
@@ -120,7 +125,6 @@ public partial class SettingsViewModel : ObservableObject
         : Path.GetFileName(HourlyDingSoundPath);
 
     public event Action<SettingsSnapshot>? SettingsSaved;
-    public event Action<int>? BackgroundOpacityPreviewChanged;
 
     public SettingsViewModel(
         ISettingsRepository settingsRepo,
@@ -143,6 +147,7 @@ public partial class SettingsViewModel : ObservableObject
         var minimizeToTray = await _settingsRepo.GetBoolAsync(SettingKeys.MinimizeToTray, true);
         var persistBounds = await _settingsRepo.GetBoolAsync(SettingKeys.PersistWindowBounds, true);
         var bgOpacity = await _settingsRepo.GetIntAsync(SettingKeys.BackgroundOpacity, 80);
+        var appTheme = NormalizeThemeOption(await _settingsRepo.GetAsync(SettingKeys.AppTheme));
         var dingEnabled = await _settingsRepo.GetBoolAsync(SettingKeys.HourlyDingEnabled, true);
         var halfHourEnabled = await _settingsRepo.GetBoolAsync(SettingKeys.HalfHourDingEnabled, true);
         var chimeWhenStopped = await _settingsRepo.GetBoolAsync(SettingKeys.ChimeWhenTimerStopped, false);
@@ -173,6 +178,7 @@ public partial class SettingsViewModel : ObservableObject
                 MinimizeToTray = minimizeToTray;
                 PersistWindowBounds = persistBounds;
                 BackgroundOpacity = Math.Clamp(bgOpacity, 35, 100);
+                AppTheme = appTheme;
                 HourlyDingEnabled = dingEnabled;
                 HalfHourDingEnabled = halfHourEnabled;
                 ChimeWhenTimerStopped = chimeWhenStopped;
@@ -320,6 +326,7 @@ public partial class SettingsViewModel : ObservableObject
         await _settingsRepo.SetAsync(SettingKeys.MinimizeToTray, MinimizeToTray.ToString().ToLowerInvariant());
         await _settingsRepo.SetAsync(SettingKeys.PersistWindowBounds, PersistWindowBounds.ToString().ToLowerInvariant());
         await _settingsRepo.SetAsync(SettingKeys.BackgroundOpacity, Math.Clamp(BackgroundOpacity, 35, 100).ToString(CultureInfo.InvariantCulture));
+        await _settingsRepo.SetAsync(SettingKeys.AppTheme, NormalizeThemeOption(AppTheme));
         await _settingsRepo.SetAsync(SettingKeys.HourlyDingEnabled, HourlyDingEnabled.ToString().ToLowerInvariant());
         await _settingsRepo.SetAsync(SettingKeys.HalfHourDingEnabled, HalfHourDingEnabled.ToString().ToLowerInvariant());
         await _settingsRepo.SetAsync(SettingKeys.ChimeWhenTimerStopped, ChimeWhenTimerStopped.ToString().ToLowerInvariant());
@@ -339,7 +346,12 @@ public partial class SettingsViewModel : ObservableObject
         RefreshDirtyState();
 
         StatusMessage = "Settings saved and applied.";
-        SettingsSaved?.Invoke(new SettingsSnapshot(TopmostEnabled, MinimizeToTray, PersistWindowBounds, Math.Clamp(BackgroundOpacity, 35, 100)));
+        SettingsSaved?.Invoke(new SettingsSnapshot(
+            TopmostEnabled,
+            MinimizeToTray,
+            PersistWindowBounds,
+            Math.Clamp(BackgroundOpacity, 35, 100),
+            NormalizeThemeOption(AppTheme)));
     }
 
     public void SyncTopmostFromExternal(bool topmostEnabled)
@@ -384,6 +396,7 @@ public partial class SettingsViewModel : ObservableObject
         MinimizeToTray: MinimizeToTray,
         PersistWindowBounds: PersistWindowBounds,
         BackgroundOpacity: Math.Clamp(BackgroundOpacity, 35, 100),
+        AppTheme: NormalizeThemeOption(AppTheme),
         HourlyDingEnabled: HourlyDingEnabled,
         HalfHourDingEnabled: HalfHourDingEnabled,
         ChimeWhenTimerStopped: ChimeWhenTimerStopped,
@@ -402,10 +415,13 @@ public partial class SettingsViewModel : ObservableObject
         SaveSettingsCommand.NotifyCanExecuteChanged();
     }
 
-    partial void OnBackgroundOpacityChanged(int value)
-    {
-        BackgroundOpacityPreviewChanged?.Invoke(Math.Clamp(value, 35, 100));
-    }
+    private static string NormalizeThemeOption(string? theme) =>
+        ThemeService.ParsePreference(theme) switch
+        {
+            AppThemePreference.Dark => "Dark",
+            AppThemePreference.Light => "Light",
+            _ => "System"
+        };
 
     private static string ResolveAppVersion()
     {

@@ -16,9 +16,11 @@ public static class WindowBackdropService
     private const int DwmwcpRound = 2;
     private const int DwmsbtMainWindowMica = 2;
     private const int DwmsbtTransientWindowAcrylic = 3;
-    // COLORREF (0x00BBGGRR) matching #0B1120 dark slate backdrop so Windows accent title-bar tint never bleeds through
+    // COLORREF (0x00BBGGRR) matching #0B1120 (dark) and #DCE4EE (light) so Windows accent title-bar tint never bleeds through
     private const int DarkSlateCaptionColorRef = 0x0020110B;
-    private const int SubtleBorderColorRef = 0x00402B1E;
+    private const int DarkSubtleBorderColorRef = 0x00402B1E;
+    private const int LightSlateCaptionColorRef = 0x00EEE4DC;
+    private const int LightSubtleBorderColorRef = 0x00D9C7B8;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct Margins
@@ -36,10 +38,10 @@ public static class WindowBackdropService
     private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref Margins pMarInset);
 
     /// <summary>
-    /// Applies Windows 11 native DWM Dark Mode, rounded corners, and Desktop Acrylic frosted-glass backdrop.
+    /// Applies Windows 11 native DWM Dark/Light Mode, rounded corners, and Desktop Acrylic frosted-glass backdrop.
     /// Returns true if DWM system backdrop succeeded.
     /// </summary>
-    public static bool ApplyFrostedGlassBackdrop(Window window)
+    public static bool ApplyFrostedGlassBackdrop(Window window, bool isDarkTheme = true)
     {
         var hwnd = new WindowInteropHelper(window).Handle;
         if (hwnd == IntPtr.Zero)
@@ -54,16 +56,16 @@ public static class WindowBackdropService
                 source.CompositionTarget.BackgroundColor = Colors.Transparent;
             }
 
-            var dark = 1;
+            var dark = isDarkTheme ? 1 : 0;
             _ = DwmSetWindowAttribute(hwnd, DwmwaUseImmersiveDarkMode, ref dark, sizeof(int));
 
             var roundCorners = DwmwcpRound;
             _ = DwmSetWindowAttribute(hwnd, DwmwaWindowCornerPreference, ref roundCorners, sizeof(int));
 
-            var captionColor = DarkSlateCaptionColorRef;
+            var captionColor = isDarkTheme ? DarkSlateCaptionColorRef : LightSlateCaptionColorRef;
             _ = DwmSetWindowAttribute(hwnd, DwmwaCaptionColor, ref captionColor, sizeof(int));
 
-            var borderColor = SubtleBorderColorRef;
+            var borderColor = isDarkTheme ? DarkSubtleBorderColorRef : LightSubtleBorderColorRef;
             _ = DwmSetWindowAttribute(hwnd, DwmwaBorderColor, ref borderColor, sizeof(int));
 
             if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22621))

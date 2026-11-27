@@ -62,9 +62,9 @@ public partial class TimerViewModel : ObservableObject
 
     public string ToggleButtonText => HasActiveSession ? "Stop" : "Start Timer";
 
-    public string PauseButtonText => IsPaused ? "▶ Resume" : "⏸ Pause";
+    public string PauseButtonText => IsPaused ? "▶ Resume" : "❚❚ Pause";
 
-    public string CompactPauseIcon => IsPaused ? "▶" : "⏸";
+    public string CompactPauseIcon => IsPaused ? "▶" : "❚❚";
 
     public bool CanToggleTimer => HasActiveSession || SelectedWorkItem != null;
 

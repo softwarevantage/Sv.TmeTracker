@@ -1,0 +1,58 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Shell & Chrome -->
+    <SolidColorBrush x:Key="TitleBarBackgroundBrush" Color="#FFDCE4EE" />
+    <SolidColorBrush x:Key="TitleBarBorderBrush" Color="#330F172A" />
+    <SolidColorBrush x:Key="AcrylicBackground" Color="#CCE6ECF3" />
+    <SolidColorBrush x:Key="FallbackShellBackground" Color="#F4E6ECF3" />
+    <SolidColorBrush x:Key="GlassBorderBrush" Color="#330F172A" />
+
+    <!-- Cards & Surfaces (4-plane cool-slate elevation hierarchy) -->
+    <SolidColorBrush x:Key="AppCardBackgroundBrush" Color="#FAFFFFFF" />
+    <SolidColorBrush x:Key="CardHoverBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="CardStrokeBrush" Color="#2E0F172A" />
+    <SolidColorBrush x:Key="NavBarBackgroundBrush" Color="#F5FFFFFF" />
+    <SolidColorBrush x:Key="NavBarBorderBrush" Color="#300F172A" />
+    <SolidColorBrush x:Key="ModalOverlayBrush" Color="#800F172A" />
+    <SolidColorBrush x:Key="ModalSurfaceBrush" Color="#FAFFFFFF" />
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="#0F0F172A" />
+    <SolidColorBrush x:Key="ProgressTrackBrush" Color="#1F0F172A" />
+
+    <!-- Buttons & Pills -->
+    <SolidColorBrush x:Key="SubtleButtonBackgroundBrush" Color="#FFE2E8F0" />
+    <SolidColorBrush x:Key="SubtleButtonHoverBrush" Color="#FFCBD5E1" />
+    <SolidColorBrush x:Key="SubtleButtonBorderBrush" Color="#FFC1CEE0" />
+    <SolidColorBrush x:Key="ChromeButtonHoverBrush" Color="#220F172A" />
+    <SolidColorBrush x:Key="ActivePillBackgroundBrush" Color="#260284C7" />
+    <SolidColorBrush x:Key="PinCheckedBackgroundBrush" Color="#260284C7" />
+
+    <!-- Typography (WCAG AA/AAA on Light Surface) -->
+    <SolidColorBrush x:Key="AppTextPrimaryBrush" Color="#0F172A" />
+    <SolidColorBrush x:Key="AppTextSecondaryBrush" Color="#475569" />
+    <SolidColorBrush x:Key="AppTextTertiaryBrush" Color="#64748B" />
+    <SolidColorBrush x:Key="NotesTextBrush" Color="#334155" />
+
+    <!-- Accents & Status -->
+    <SolidColorBrush x:Key="AccentBrush" Color="#0284C7" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#0369A1" />
+    <SolidColorBrush x:Key="AccentTextBrush" Color="#0369A1" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="#059669" />
+    <SolidColorBrush x:Key="WarningBrush" Color="#D97706" />
+    <SolidColorBrush x:Key="DangerBrush" Color="#E11D48" />
+    <SolidColorBrush x:Key="DangerHoverBrush" Color="#BE123C" />
+    <SolidColorBrush x:Key="DangerBannerBackgroundBrush" Color="#1CE11D48" />
+    <SolidColorBrush x:Key="DangerBannerBorderBrush" Color="#55E11D48" />
+
+    <!-- Active Session Highlights -->
+    <SolidColorBrush x:Key="RunningCardTintBrush" Color="#FFF0FDF4" />
+    <SolidColorBrush x:Key="RunningCardBorderBrush" Color="#FF34D399" />
+    <SolidColorBrush x:Key="RunningBadgeBackgroundBrush" Color="#22059669" />
+    <SolidColorBrush x:Key="PausedCardTintBrush" Color="#FFFFFBEB" />
+    <SolidColorBrush x:Key="PausedCardBorderBrush" Color="#FFF59E0B" />
+    <SolidColorBrush x:Key="PausedBadgeBackgroundBrush" Color="#22D97706" />
+    <SolidColorBrush x:Key="PausedButtonBackgroundBrush" Color="#D97706" />
+    <SolidColorBrush x:Key="PausedButtonHoverBrush" Color="#B45309" />
+    <SolidColorBrush x:Key="PausedButtonBorderBrush" Color="#B45309" />
+    <SolidColorBrush x:Key="ResumeButtonBackgroundBrush" Color="#059669" />
+    <SolidColorBrush x:Key="ResumeButtonHoverBrush" Color="#047857" />
+</ResourceDictionary>

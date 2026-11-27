@@ -265,6 +265,7 @@ public class TimeEntryRepository : ITimeEntryRepository
                 StartTimeUtc = startUtc,
                 EndTimeUtc = endUtc,
                 DurationMs = effectiveDurationMs,
+                IsPaused = !endUtc.HasValue && entryId == pausedEntryId,
                 Notes = reader.IsDBNull(7) ? null : reader.GetString(7)
             });
         }

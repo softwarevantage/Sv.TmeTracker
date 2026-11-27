@@ -1,4 +1,6 @@
 using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Sv.TimeTracker.Data;
 using Sv.TimeTracker.Data.Repositories;
@@ -15,6 +17,7 @@ public partial class App : Application
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+        RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
         base.OnStartup(e);
 
         IsSmokeTestMode = e.Args.Any(a => string.Equals(a, "--smoke-test", StringComparison.OrdinalIgnoreCase));
@@ -62,6 +65,7 @@ public partial class App : Application
         services.AddSingleton<IHotkeyService, HotkeyService>();
         services.AddSingleton<IExportService, ExportService>();
         services.AddSingleton<ITrayIconService, TrayIconService>();
+        services.AddSingleton<IThemeService, ThemeService>();
 
         services.AddSingleton<TimerViewModel>();
         services.AddSingleton<WorkItemsViewModel>();

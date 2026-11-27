@@ -21,7 +21,7 @@
                 <TextBlock Text="History"
                            FontSize="20"
                            FontWeight="SemiBold"
-                           Foreground="{StaticResource TextFillColorPrimary}"
+                           Foreground="{DynamicResource AppTextPrimaryBrush}"
                            Margin="0,0,12,0" />
                 <Button Content="Today"
                         Command="{Binding ApplyPresetCommand}"
@@ -90,12 +90,12 @@
                     <TextBlock Text="TOTAL TRACKED"
                                FontSize="9.5"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextFillColorSecondary}" />
+                               Foreground="{DynamicResource AppTextSecondaryBrush}" />
                     <TextBlock Text="{Binding GrandTotalFormatted}"
                                FontSize="15.5"
                                FontWeight="SemiBold"
                                Typography.NumeralAlignment="Tabular"
-                               Foreground="#38BDF8"
+                               Foreground="{DynamicResource AccentTextBrush}"
                                Margin="0,2,0,0" />
                 </StackPanel>
             </Border>
@@ -105,11 +105,11 @@
                     <TextBlock Text="SESSIONS"
                                FontSize="9.5"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextFillColorSecondary}" />
+                               Foreground="{DynamicResource AppTextSecondaryBrush}" />
                     <TextBlock Text="{Binding TotalSessionCount}"
                                FontSize="15.5"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextFillColorPrimary}"
+                               Foreground="{DynamicResource AppTextPrimaryBrush}"
                                Margin="0,2,0,0" />
                 </StackPanel>
             </Border>
@@ -119,11 +119,11 @@
                     <TextBlock Text="TOP FOCUS"
                                FontSize="9.5"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextFillColorSecondary}" />
+                               Foreground="{DynamicResource AppTextSecondaryBrush}" />
                     <TextBlock Text="{Binding TopWorkItemSummary}"
                                FontSize="12"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextFillColorPrimary}"
+                               Foreground="{DynamicResource AppTextPrimaryBrush}"
                                TextTrimming="CharacterEllipsis"
                                Margin="0,4,0,0" />
                 </StackPanel>
@@ -147,8 +147,8 @@
                         <Style TargetType="Button" BasedOn="{StaticResource SubtleButtonStyle}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsEntriesSection}" Value="True">
-                                    <Setter Property="Background" Value="#380EA5E9" />
-                                    <Setter Property="Foreground" Value="#38BDF8" />
+                                    <Setter Property="Background" Value="{DynamicResource ActivePillBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -164,8 +164,8 @@
                         <Style TargetType="Button" BasedOn="{StaticResource SubtleButtonStyle}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsWorkItemsSection}" Value="True">
-                                    <Setter Property="Background" Value="#380EA5E9" />
-                                    <Setter Property="Foreground" Value="#38BDF8" />
+                                    <Setter Property="Background" Value="{DynamicResource ActivePillBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -180,8 +180,8 @@
                         <Style TargetType="Button" BasedOn="{StaticResource SubtleButtonStyle}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsDaysSection}" Value="True">
-                                    <Setter Property="Background" Value="#380EA5E9" />
-                                    <Setter Property="Foreground" Value="#38BDF8" />
+                                    <Setter Property="Background" Value="{DynamicResource ActivePillBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -192,7 +192,7 @@
             <TextBlock Grid.Column="1"
                        Text="{Binding StatusMessage}"
                        FontSize="11.5"
-                       Foreground="{StaticResource SuccessBrush}"
+                       Foreground="{DynamicResource SuccessBrush}"
                        HorizontalAlignment="Right"
                        VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis"
@@ -207,7 +207,21 @@
                 <ItemsControl ItemsSource="{Binding Entries}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource FrostedCardStyle}" Padding="12,10" Margin="0,0,0,8">
+                            <Border Padding="12,10" Margin="0,0,0,8">
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource FrostedCardStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsActivelyRunning}" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource RunningCardTintBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource RunningCardBorderBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource PausedCardTintBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource PausedCardBorderBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
@@ -223,17 +237,66 @@
                                              VerticalAlignment="Top" />
 
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="{Binding WorkItemTitle}"
-                                                   FontSize="13.5"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{StaticResource TextFillColorPrimary}" />
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding WorkItemTitle}"
+                                                       FontSize="13.5"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource AppTextPrimaryBrush}"
+                                                       VerticalAlignment="Center" />
+                                            <!-- Live / Paused Status Pill -->
+                                            <Border CornerRadius="8"
+                                                    Padding="7,2"
+                                                    Margin="8,0,0,0"
+                                                    VerticalAlignment="Center"
+                                                    Visibility="{Binding IsActiveSession, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="{DynamicResource RunningBadgeBackgroundBrush}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                                                <Setter Property="Background" Value="{DynamicResource PausedBadgeBackgroundBrush}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Ellipse Width="6" Height="6" Margin="0,0,5,0" VerticalAlignment="Center">
+                                                        <Ellipse.Style>
+                                                            <Style TargetType="Ellipse">
+                                                                <Setter Property="Fill" Value="{DynamicResource SuccessBrush}" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                                                        <Setter Property="Fill" Value="{DynamicResource WarningBrush}" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Ellipse.Style>
+                                                    </Ellipse>
+                                                    <TextBlock Text="{Binding ActiveStatusBadgeText}"
+                                                               FontSize="10"
+                                                               FontWeight="Bold"
+                                                               VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
                                         <TextBlock Text="{Binding TimeRangeDisplay}"
                                                    FontSize="11.5"
-                                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                                   Foreground="{DynamicResource AppTextSecondaryBrush}"
                                                    Margin="0,2,0,0" />
                                         <TextBlock Text="{Binding Notes}"
                                                    FontSize="11.5"
-                                                   Foreground="#CBD5E1"
+                                                   Foreground="{DynamicResource NotesTextBrush}"
                                                    TextWrapping="Wrap"
                                                    Margin="0,4,0,0"
                                                    Visibility="{Binding Notes, Converter={StaticResource BooleanToVisibilityConverter}}" />
@@ -244,11 +307,27 @@
                                                    FontSize="13.5"
                                                    FontWeight="SemiBold"
                                                    Typography.NumeralAlignment="Tabular"
-                                                   HorizontalAlignment="Right"
-                                                   Foreground="{StaticResource TextFillColorPrimary}" />
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
+                                                   HorizontalAlignment="Right">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActivelyRunning}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Right"
+                                                    Margin="0,4,0,0"
+                                                    Visibility="{Binding CanEditOrDelete, Converter={StaticResource BooleanToVisibilityConverter}}">
                                             <Button Content="✎"
-                                                    ToolTip="Edit session notes"
+                                                    ToolTip="Edit session time and notes"
                                                     Command="{Binding DataContext.BeginEditEntryNotesCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}"
                                                     Style="{StaticResource SubtleButtonStyle}"
@@ -295,23 +374,23 @@
                                                    Text="{Binding Title}"
                                                    FontSize="13.5"
                                                    FontWeight="SemiBold"
-                                                   Foreground="{StaticResource TextFillColorPrimary}" />
+                                                   Foreground="{DynamicResource AppTextPrimaryBrush}" />
                                         <StackPanel Grid.Column="2" Orientation="Horizontal">
                                             <TextBlock Text="{Binding ShareDisplay}"
                                                        FontSize="12"
-                                                       Foreground="{StaticResource TextFillColorSecondary}"
+                                                       Foreground="{DynamicResource AppTextSecondaryBrush}"
                                                        Margin="0,0,8,0"
                                                        VerticalAlignment="Center" />
                                             <TextBlock Text="{Binding TotalFormatted}"
                                                        FontSize="13.5"
                                                        FontWeight="SemiBold"
                                                        Typography.NumeralAlignment="Tabular"
-                                                       Foreground="#38BDF8" />
+                                                       Foreground="{DynamicResource AccentTextBrush}" />
                                         </StackPanel>
                                     </Grid>
 
                                     <!-- Progress Bar Track -->
-                                    <Border Background="#1AFFFFFF"
+                                    <Border Background="{DynamicResource ProgressTrackBrush}"
                                             Height="7"
                                             CornerRadius="3.5"
                                             Margin="0,8,0,0">
@@ -344,10 +423,10 @@
                                         <TextBlock Text="{Binding DateDisplay}"
                                                    FontSize="13.5"
                                                    FontWeight="SemiBold"
-                                                   Foreground="{StaticResource TextFillColorPrimary}" />
+                                                   Foreground="{DynamicResource AppTextPrimaryBrush}" />
                                         <TextBlock Text="{Binding EntryCountDisplay}"
                                                    FontSize="11.5"
-                                                   Foreground="{StaticResource TextFillColorSecondary}" />
+                                                   Foreground="{DynamicResource AppTextSecondaryBrush}" />
                                     </StackPanel>
                                     <TextBlock Grid.Column="1"
                                                Text="{Binding TotalFormatted}"
@@ -355,7 +434,7 @@
                                                FontWeight="SemiBold"
                                                Typography.NumeralAlignment="Tabular"
                                                VerticalAlignment="Center"
-                                               Foreground="#38BDF8" />
+                                               Foreground="{DynamicResource AccentTextBrush}" />
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -364,27 +443,109 @@
             </ScrollViewer>
         </Grid>
 
-        <!-- Inline Session Notes Edit Overlay -->
+        <!-- Inline Session Edit Overlay -->
         <Border Grid.RowSpan="5"
-                Background="{StaticResource ModalOverlayBrush}"
+                Background="{DynamicResource ModalOverlayBrush}"
                 CornerRadius="12"
                 Padding="20"
                 Visibility="{Binding EditingEntry, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Style="{StaticResource FrostedCardStyle}"
-                    Background="#F2111827"
+                    Background="{DynamicResource ModalSurfaceBrush}"
                     VerticalAlignment="Center">
                 <StackPanel>
-                    <TextBlock Text="Edit Session Notes"
-                               FontSize="16"
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Ellipse Width="10"
+                                 Height="10"
+                                 Fill="{Binding EditingEntry.WorkItemColor, Converter={StaticResource HexColorToBrushConverter}}"
+                                 Margin="0,0,8,0"
+                                 VerticalAlignment="Center" />
+                        <TextBlock Text="Edit Session"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource AppTextPrimaryBrush}"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding EditingEntry.WorkItemTitle, StringFormat=' · {0}'}"
+                                   FontSize="13"
+                                   Foreground="{DynamicResource AppTextSecondaryBrush}"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <!-- Start Date & Time -->
+                    <TextBlock Text="START"
+                               FontSize="10"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextFillColorPrimary}"
-                               Margin="0,0,0,10" />
+                               Foreground="{DynamicResource AppTextSecondaryBrush}"
+                               Margin="0,0,0,4" />
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="120" />
+                        </Grid.ColumnDefinitions>
+                        <DatePicker Grid.Column="0"
+                                    SelectedDate="{Binding EditingStartDate, Mode=TwoWay}"
+                                    Margin="0,0,8,0" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding EditingStartTimeText, UpdateSourceTrigger=PropertyChanged}"
+                                 VerticalContentAlignment="Center"
+                                 Padding="8,0"
+                                 ToolTip="Start time (e.g. 09:00:00 or 9:00 AM)" />
+                    </Grid>
+
+                    <!-- End Date & Time -->
+                    <TextBlock Text="END"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource AppTextSecondaryBrush}"
+                               Margin="0,0,0,4" />
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="120" />
+                        </Grid.ColumnDefinitions>
+                        <DatePicker Grid.Column="0"
+                                    SelectedDate="{Binding EditingEndDate, Mode=TwoWay}"
+                                    Margin="0,0,8,0" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding EditingEndTimeText, UpdateSourceTrigger=PropertyChanged}"
+                                 VerticalContentAlignment="Center"
+                                 Padding="8,0"
+                                 ToolTip="End time (e.g. 17:30:00 or 5:30 PM)" />
+                    </Grid>
+
+                    <!-- Duration -->
+                    <TextBlock Text="DURATION (HH:MM:SS)"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource AppTextSecondaryBrush}"
+                               Margin="0,0,0,4" />
+                    <TextBox Text="{Binding EditingDurationText, UpdateSourceTrigger=PropertyChanged}"
+                             Height="32"
+                             VerticalContentAlignment="Center"
+                             Padding="8,0"
+                             Margin="0,0,0,10"
+                             ToolTip="Duration in HH:MM:SS (updating adjusts End time)" />
+
+                    <!-- Notes -->
+                    <TextBlock Text="NOTES"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource AppTextSecondaryBrush}"
+                               Margin="0,0,0,4" />
                     <TextBox Text="{Binding EditingEntryNotes, UpdateSourceTrigger=PropertyChanged}"
-                             Height="72"
+                             Height="62"
                              TextWrapping="Wrap"
                              AcceptsReturn="True"
                              Padding="8,6"
-                             Margin="0,0,0,12" />
+                             Margin="0,0,0,10" />
+
+                    <TextBlock Text="{Binding EditingValidationError}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,10"
+                               Visibility="{Binding EditingValidationError, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Cancel"
                                 Command="{Binding CancelEditEntryNotesCommand}"

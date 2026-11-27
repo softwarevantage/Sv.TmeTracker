@@ -13,6 +13,8 @@ public partial class MainViewModel : ObservableObject
     private readonly ISettingsRepository _settingsRepo;
     private readonly INotificationService _notificationService;
     private readonly ITrayIconService _trayIconService;
+    private readonly IThemeService? _themeService;
+    private int _currentOpacity = 80;
 
     public TimerViewModel Timer { get; }
     public WorkItemsViewModel WorkItems { get; }
@@ -45,7 +47,7 @@ public partial class MainViewModel : ObservableObject
     private bool _persistWindowBounds = true;
 
     [ObservableProperty]
-    private Brush _shellBackgroundBrush = CreateBackdropBrush(80);
+    private Brush _shellBackgroundBrush = CreateBackdropBrush(80, isDarkTheme: true);
 
     public bool IsTimerTab => CurrentTab == NavigationTab.Timer;
     public bool IsWorkItemsTab => CurrentTab == NavigationTab.WorkItems;
@@ -62,7 +64,8 @@ public partial class MainViewModel : ObservableObject
         ITimerService timerService,
         ISettingsRepository settingsRepo,
         INotificationService notificationService,
-        ITrayIconService trayIconService)
+        ITrayIconService trayIconService,
+        IThemeService? themeService = null)
     {
         Timer = timer;
         WorkItems = workItems;
@@ -72,6 +75,12 @@ public partial class MainViewModel : ObservableObject
         _settingsRepo = settingsRepo;
         _notificationService = notificationService;
         _trayIconService = trayIconService;
+        _themeService = themeService;
+
+        if (_themeService != null)
+        {
+            _themeService.EffectiveThemeChanged += _ => ApplyBackgroundOpacity(_currentOpacity);
+        }
 
         _timerService.ClockTicked += OnClockTicked;
         _timerService.TimerTicked += OnTimerTicked;
@@ -102,10 +111,9 @@ public partial class MainViewModel : ObservableObject
             IsTopmost = snapshot.TopmostEnabled;
             MinimizeToTray = snapshot.MinimizeToTray;
             PersistWindowBounds = snapshot.PersistWindowBounds;
+            _themeService?.ApplyTheme(snapshot.AppTheme);
             ApplyBackgroundOpacity(snapshot.BackgroundOpacity);
         };
-
-        Settings.BackgroundOpacityPreviewChanged += ApplyBackgroundOpacity;
     }
 
     public async Task InitializeAsync()
@@ -114,6 +122,8 @@ public partial class MainViewModel : ObservableObject
         MinimizeToTray = await _settingsRepo.GetBoolAsync(SettingKeys.MinimizeToTray, true);
         PersistWindowBounds = await _settingsRepo.GetBoolAsync(SettingKeys.PersistWindowBounds, true);
         IsCompactMode = await _settingsRepo.GetBoolAsync(SettingKeys.CompactModeEnabled, false);
+        var appTheme = await _settingsRepo.GetAsync(SettingKeys.AppTheme);
+        _themeService?.ApplyTheme(appTheme);
         var bgOpacity = await _settingsRepo.GetIntAsync(SettingKeys.BackgroundOpacity, 80);
         ApplyBackgroundOpacity(bgOpacity);
         Timer.IsCompactMode = IsCompactMode;
@@ -213,15 +223,20 @@ public partial class MainViewModel : ObservableObject
 
     private void ApplyBackgroundOpacity(int opacityPercent)
     {
-        var brush = CreateBackdropBrush(opacityPercent);
+        _currentOpacity = Math.Clamp(opacityPercent, 35, 100);
+        var isDark = _themeService?.IsDarkTheme ?? true;
+        var brush = CreateBackdropBrush(_currentOpacity, isDark);
         UiDispatcher.Invoke(() => ShellBackgroundBrush = brush);
     }
 
-    private static SolidColorBrush CreateBackdropBrush(int opacityPercent)
+    private static SolidColorBrush CreateBackdropBrush(int opacityPercent, bool isDarkTheme)
     {
         var clamped = Math.Clamp(opacityPercent, 35, 100);
         var alpha = (byte)Math.Round(clamped / 100.0 * 255.0);
-        var brush = new SolidColorBrush(Color.FromArgb(alpha, 0x0B, 0x11, 0x20));
+        var color = isDarkTheme
+            ? Color.FromArgb(alpha, 0x0B, 0x11, 0x20)
+            : Color.FromArgb(alpha, 0xE6, 0xEC, 0xF3);
+        var brush = new SolidColorBrush(color);
         brush.Freeze();
         return brush;
     }

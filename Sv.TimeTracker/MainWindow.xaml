@@ -27,7 +27,7 @@
 
     <Border x:Name="ShellRootBorder"
             Background="{Binding ShellBackgroundBrush}"
-            BorderBrush="{StaticResource GlassBorderBrush}"
+            BorderBrush="{DynamicResource GlassBorderBrush}"
             BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
@@ -38,8 +38,8 @@
 
             <!-- Custom Frosted Title Bar (opaque to prevent Windows DWM 32px caption bleed-through) -->
             <Border Grid.Row="0"
-                    Background="#FF121B2E"
-                    BorderBrush="#1FFFFFFF"
+                    Background="{DynamicResource TitleBarBackgroundBrush}"
+                    BorderBrush="{DynamicResource TitleBarBorderBrush}"
                     BorderThickness="0,0,0,1"
                     Padding="14,0,10,0">
                 <Grid>
@@ -58,7 +58,7 @@
                                VerticalAlignment="Center" />
                         <TextBlock FontSize="13.5"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextFillColorPrimary}"
+                                   Foreground="{DynamicResource AppTextPrimaryBrush}"
                                    VerticalAlignment="Center">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -80,10 +80,10 @@
                                     <Setter Property="Fill" Value="#64748B" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsTimerRunning}" Value="True">
-                                            <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                            <Setter Property="Fill" Value="{DynamicResource SuccessBrush}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsTimerPaused}" Value="True">
-                                            <Setter Property="Fill" Value="#F59E0B" />
+                                            <Setter Property="Fill" Value="{DynamicResource WarningBrush}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -143,8 +143,8 @@
             <Border Grid.Row="2"
                     Margin="14,6,14,12"
                     Padding="6"
-                    Background="#1EFFFFFF"
-                    BorderBrush="#22FFFFFF"
+                    Background="{DynamicResource NavBarBackgroundBrush}"
+                    BorderBrush="{DynamicResource NavBarBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="10"
                     Visibility="{Binding IsCompactMode, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
@@ -159,8 +159,8 @@
                                 <Setter Property="Background" Value="Transparent" />
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsTimerTab}" Value="True">
-                                        <Setter Property="Background" Value="#380EA5E9" />
-                                        <Setter Property="Foreground" Value="#38BDF8" />
+                                        <Setter Property="Background" Value="{DynamicResource ActivePillBackgroundBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -177,8 +177,8 @@
                                 <Setter Property="Background" Value="Transparent" />
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsWorkItemsTab}" Value="True">
-                                        <Setter Property="Background" Value="#380EA5E9" />
-                                        <Setter Property="Foreground" Value="#38BDF8" />
+                                        <Setter Property="Background" Value="{DynamicResource ActivePillBackgroundBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -195,8 +195,8 @@
                                 <Setter Property="Background" Value="Transparent" />
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsHistoryTab}" Value="True">
-                                        <Setter Property="Background" Value="#380EA5E9" />
-                                        <Setter Property="Foreground" Value="#38BDF8" />
+                                        <Setter Property="Background" Value="{DynamicResource ActivePillBackgroundBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -213,8 +213,8 @@
                                 <Setter Property="Background" Value="Transparent" />
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsSettingsTab}" Value="True">
-                                        <Setter Property="Background" Value="#380EA5E9" />
-                                        <Setter Property="Foreground" Value="#38BDF8" />
+                                        <Setter Property="Background" Value="{DynamicResource ActivePillBackgroundBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

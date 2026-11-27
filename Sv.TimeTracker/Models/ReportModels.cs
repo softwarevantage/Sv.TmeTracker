@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace Sv.TimeTracker.Models;
 
 public static class DurationFormatter
@@ -34,7 +36,7 @@ public static class DurationFormatter
     }
 }
 
-public class EnrichedTimeEntry
+public partial class EnrichedTimeEntry : ObservableObject
 {
     public long Id { get; set; }
     public long WorkItemId { get; set; }
@@ -42,7 +44,17 @@ public class EnrichedTimeEntry
     public string WorkItemColor { get; set; } = "#0078D4";
     public DateTime StartTimeUtc { get; set; }
     public DateTime? EndTimeUtc { get; set; }
-    public long DurationMs { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DurationFormatted))]
+    private long _durationMs;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsActivelyRunning))]
+    [NotifyPropertyChangedFor(nameof(TimeRangeDisplay))]
+    [NotifyPropertyChangedFor(nameof(ActiveStatusBadgeText))]
+    private bool _isPaused;
+
     public string? Notes { get; set; }
 
     public DateTime LocalStartTime => StartTimeUtc.Kind == DateTimeKind.Utc
@@ -55,11 +67,26 @@ public class EnrichedTimeEntry
 
     public bool IsRunning => !EndTimeUtc.HasValue;
 
+    /// <summary>
+    /// True for any entry without an EndTime (both actively running and paused).
+    /// </summary>
+    public bool IsActiveSession => !EndTimeUtc.HasValue;
+
+    public bool IsActivelyRunning => IsActiveSession && !IsPaused;
+
+    public bool CanEditOrDelete => EndTimeUtc.HasValue;
+
+    public string ActiveStatusBadgeText => !IsActiveSession
+        ? string.Empty
+        : (IsPaused ? "PAUSED" : "LIVE");
+
     public string DurationFormatted => DurationFormatter.FormatMilliseconds(DurationMs);
 
     public string TimeRangeDisplay => LocalEndTime.HasValue
         ? $"{LocalStartTime:MMM d, yyyy  h:mm tt} – {LocalEndTime.Value:h:mm tt}"
-        : $"{LocalStartTime:MMM d, yyyy  h:mm tt} – Running";
+        : (IsPaused
+            ? $"{LocalStartTime:MMM d, yyyy  h:mm tt} – Paused"
+            : $"{LocalStartTime:MMM d, yyyy  h:mm tt} – Running");
 }
 
 public record DailyTotalSummary(

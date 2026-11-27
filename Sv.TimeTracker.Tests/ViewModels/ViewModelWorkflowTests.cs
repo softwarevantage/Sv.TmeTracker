@@ -25,7 +25,7 @@ public class ViewModelWorkflowTests
 
         var timerVm = new TimerViewModel(timerService, db.WorkItems, db.Settings);
         var workItemsVm = new WorkItemsViewModel(db.WorkItems);
-        var historyVm = new HistoryViewModel(db.TimeEntries, db.WorkItems, exportService, clock);
+        var historyVm = new HistoryViewModel(db.TimeEntries, db.WorkItems, exportService, clock, timerService);
         var settingsVm = new SettingsViewModel(db.Settings, db.WorkItems, notificationService, hotkeyMock.Object);
 
         var mainVm = new MainViewModel(
@@ -113,5 +113,126 @@ public class ViewModelWorkflowTests
         Assert.Equal("Ctrl+Alt+T", await db.Settings.GetAsync(SettingKeys.ToggleTimerHotkey));
         Assert.Equal(75, await db.Settings.GetIntAsync(SettingKeys.HourlyDingVolume));
         hotkeyMock.Verify(h => h.ReloadBindingsAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task HistoryActiveSession_TicksLive_AndBlocksEditOrDeleteUntilStopped()
+    {
+        using var db = new TempDatabaseFixture(seedStarterWorkItems: true);
+        var clock = new AdjustableTimeProvider(new DateTimeOffset(2026, 11, 24, 16, 0, 0, TimeSpan.Zero));
+        using var timerService = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false, db.Settings);
+        var exportService = new ExportService(db.TimeEntries);
+        var historyVm = new HistoryViewModel(db.TimeEntries, db.WorkItems, exportService, clock, timerService);
+
+        var workItem = (await db.WorkItems.GetAllAsync()).First();
+        await timerService.StartAsync(workItem.Id, "Active task");
+        await historyVm.ApplyPresetAsync("All");
+
+        Assert.Single(historyVm.Entries);
+        var activeEntry = historyVm.Entries[0];
+        Assert.True(activeEntry.IsActiveSession);
+        Assert.True(activeEntry.IsActivelyRunning);
+        Assert.False(activeEntry.IsPaused);
+        Assert.False(activeEntry.CanEditOrDelete);
+        Assert.Equal("LIVE", activeEntry.ActiveStatusBadgeText);
+
+        // Live tick updates DurationMs and GrandTotalFormatted in-place
+        clock.Advance(TimeSpan.FromSeconds(42));
+        timerService.Tick();
+        Assert.Equal("00:00:42", historyVm.Entries[0].DurationFormatted);
+        Assert.Equal("00:00:42", historyVm.GrandTotalFormatted);
+
+        // Edit and delete are blocked while running
+        historyVm.BeginEditEntryNotes(activeEntry);
+        Assert.Null(historyVm.EditingEntry);
+        await historyVm.DeleteEntryAsync(activeEntry);
+        Assert.Single(historyVm.Entries);
+
+        // Pause: still considered active, edit/delete still blocked
+        await timerService.PauseAsync();
+        await historyVm.LoadHistoryAsync();
+        var pausedEntry = historyVm.Entries[0];
+        Assert.True(pausedEntry.IsActiveSession);
+        Assert.False(pausedEntry.IsActivelyRunning);
+        Assert.True(pausedEntry.IsPaused);
+        Assert.False(pausedEntry.CanEditOrDelete);
+        Assert.Equal("PAUSED", pausedEntry.ActiveStatusBadgeText);
+
+        historyVm.BeginEditEntryNotes(pausedEntry);
+        Assert.Null(historyVm.EditingEntry);
+        await historyVm.DeleteEntryAsync(pausedEntry);
+        Assert.Single(historyVm.Entries);
+
+        // Stop: now editable and deletable
+        await timerService.StopAsync();
+        await historyVm.LoadHistoryAsync();
+        var stoppedEntry = historyVm.Entries[0];
+        Assert.False(stoppedEntry.IsActiveSession);
+        Assert.True(stoppedEntry.CanEditOrDelete);
+
+        historyVm.BeginEditEntryNotes(stoppedEntry);
+        Assert.NotNull(historyVm.EditingEntry);
+    }
+
+    [Fact]
+    public async Task HistoryEditStoppedSession_UpdatesTimeAndNotes_WithValidation()
+    {
+        using var db = new TempDatabaseFixture(seedStarterWorkItems: true);
+        var clock = new AdjustableTimeProvider(new DateTimeOffset(2026, 11, 24, 16, 0, 0, TimeSpan.Zero));
+        using var timerService = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false, db.Settings);
+        var exportService = new ExportService(db.TimeEntries);
+        var historyVm = new HistoryViewModel(db.TimeEntries, db.WorkItems, exportService, clock, timerService);
+
+        var workItem = (await db.WorkItems.GetAllAsync()).First();
+        await timerService.StartAsync(workItem.Id);
+        clock.Advance(TimeSpan.FromMinutes(30));
+        await timerService.StopAsync();
+
+        await historyVm.ApplyPresetAsync("All");
+        var entry = historyVm.Entries[0];
+
+        historyVm.BeginEditEntryNotes(entry);
+        Assert.Equal("00:30:00", historyVm.EditingDurationText);
+
+        // Updating Duration recalculates End time; updating Start/End recalculates Duration
+        historyVm.EditingDurationText = "01:15:00";
+        await historyVm.SaveEntryNotesAsync();
+
+        Assert.Null(historyVm.EditingValidationError);
+        Assert.Equal("01:15:00", historyVm.Entries[0].DurationFormatted);
+        Assert.Equal("01:15:00", historyVm.GrandTotalFormatted);
+
+        // Invalid time order triggers validation error
+        historyVm.BeginEditEntryNotes(historyVm.Entries[0]);
+        historyVm.EditingStartTimeText = "12:00:00";
+        historyVm.EditingEndTimeText = "11:00:00";
+        await historyVm.SaveEntryNotesAsync();
+        Assert.NotNull(historyVm.EditingValidationError);
+        Assert.NotNull(historyVm.EditingEntry);
+    }
+
+    [Fact]
+    public async Task SettingsViewModel_DefaultsToSystemTheme_AndPersistsThemeSelection()
+    {
+        using var db = new TempDatabaseFixture(seedStarterWorkItems: true);
+        var clock = new AdjustableTimeProvider(new DateTimeOffset(2026, 11, 24, 16, 0, 0, TimeSpan.Zero));
+        using var timerService = new TimerService(db.TimeEntries, db.WorkItems, clock, enableAutoTick: false, db.Settings);
+        var audioMock = new Mock<IAudioChimePlayer>();
+        var notificationService = new NotificationService(timerService, db.Settings, audioMock.Object, clock);
+        var hotkeyMock = new Mock<IHotkeyService>();
+        hotkeyMock.SetupGet(h => h.RegistrationWarnings).Returns([]);
+
+        var settingsVm = new SettingsViewModel(db.Settings, db.WorkItems, notificationService, hotkeyMock.Object);
+        await settingsVm.LoadAsync();
+
+        Assert.Equal("System", settingsVm.AppTheme);
+        Assert.False(settingsVm.HasUnsavedChanges);
+
+        settingsVm.AppTheme = "Light";
+        Assert.True(settingsVm.HasUnsavedChanges);
+        await settingsVm.SaveSettingsAsync();
+
+        Assert.False(settingsVm.HasUnsavedChanges);
+        Assert.Equal("Light", await db.Settings.GetAsync(SettingKeys.AppTheme));
     }
 }

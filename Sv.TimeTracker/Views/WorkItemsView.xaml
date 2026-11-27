@@ -19,10 +19,10 @@
                 <TextBlock Text="Work Items"
                            FontSize="20"
                            FontWeight="SemiBold"
-                           Foreground="{StaticResource TextFillColorPrimary}" />
+                           Foreground="{DynamicResource AppTextPrimaryBrush}" />
                 <TextBlock Text="Organize tasks and launch focused sessions"
                            FontSize="12"
-                           Foreground="{StaticResource TextFillColorSecondary}" />
+                           Foreground="{DynamicResource AppTextSecondaryBrush}" />
             </StackPanel>
 
             <Button Grid.Column="1"
@@ -34,8 +34,8 @@
 
         <!-- Inline Delete Confirmation Banner -->
         <Border Grid.Row="1"
-                Background="#33F43F5E"
-                BorderBrush="#66F43F5E"
+                Background="{DynamicResource DangerBannerBackgroundBrush}"
+                BorderBrush="{DynamicResource DangerBannerBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="8"
                 Padding="12,8"
@@ -50,7 +50,7 @@
                            VerticalAlignment="Center"
                            TextWrapping="Wrap"
                            FontSize="12.5"
-                           Foreground="{StaticResource TextFillColorPrimary}">
+                           Foreground="{DynamicResource AppTextPrimaryBrush}">
                     <Run Text="Delete &quot;" /><Run Text="{Binding PendingDeleteItem.Title, Mode=OneWay}" FontWeight="SemiBold" /><Run Text="&quot; and its sessions?" />
                 </TextBlock>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="8,0,0,0">
@@ -95,11 +95,11 @@
                                     <TextBlock Text="{Binding Title}"
                                                FontSize="14.5"
                                                FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextFillColorPrimary}"
+                                               Foreground="{DynamicResource AppTextPrimaryBrush}"
                                                TextTrimming="CharacterEllipsis" />
                                     <TextBlock Text="{Binding Description}"
                                                FontSize="12"
-                                               Foreground="{StaticResource TextFillColorSecondary}"
+                                               Foreground="{DynamicResource AppTextSecondaryBrush}"
                                                TextWrapping="Wrap"
                                                Margin="0,2,0,0"
                                                Visibility="{Binding Description, Converter={StaticResource BooleanToVisibilityConverter}}" />
@@ -149,23 +149,23 @@
 
         <!-- Inline Frosted Create / Edit Modal Drawer -->
         <Border Grid.RowSpan="3"
-                Background="{StaticResource ModalOverlayBrush}"
+                Background="{DynamicResource ModalOverlayBrush}"
                 CornerRadius="12"
                 Padding="20"
                 Visibility="{Binding IsEditorOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Style="{StaticResource FrostedCardStyle}"
-                    Background="#F2111827"
+                    Background="{DynamicResource ModalSurfaceBrush}"
                     VerticalAlignment="Center">
                 <StackPanel>
                     <TextBlock Text="{Binding EditorHeader}"
                                FontSize="17"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextFillColorPrimary}"
+                               Foreground="{DynamicResource AppTextPrimaryBrush}"
                                Margin="0,0,0,14" />
 
                     <TextBlock Text="Title"
                                FontSize="12"
-                               Foreground="{StaticResource TextFillColorSecondary}"
+                               Foreground="{DynamicResource AppTextSecondaryBrush}"
                                Margin="0,0,0,4" />
                     <TextBox Text="{Binding DraftTitle, UpdateSourceTrigger=PropertyChanged}"
                              Height="34"
@@ -175,7 +175,7 @@
 
                     <TextBlock Text="Description (optional)"
                                FontSize="12"
-                               Foreground="{StaticResource TextFillColorSecondary}"
+                               Foreground="{DynamicResource AppTextSecondaryBrush}"
                                Margin="0,0,0,4" />
                     <TextBox Text="{Binding DraftDescription, UpdateSourceTrigger=PropertyChanged}"
                              Height="56"
@@ -186,7 +186,7 @@
 
                     <TextBlock Text="Badge Color"
                                FontSize="12"
-                               Foreground="{StaticResource TextFillColorSecondary}"
+                               Foreground="{DynamicResource AppTextSecondaryBrush}"
                                Margin="0,0,0,6" />
                     <ItemsControl ItemsSource="{Binding ColorPalette}" Margin="0,0,0,10">
                         <ItemsControl.ItemsPanel>
@@ -205,7 +205,7 @@
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Ellipse Fill="{Binding Converter={StaticResource HexColorToBrushConverter}}"
-                                                     Stroke="#44FFFFFF"
+                                                     Stroke="{DynamicResource CardStrokeBrush}"
                                                      StrokeThickness="1.5" />
                                         </ControlTemplate>
                                     </Button.Template>
@@ -228,7 +228,7 @@
                     </StackPanel>
 
                     <TextBlock Text="{Binding EditorValidationError}"
-                               Foreground="{StaticResource DangerBrush}"
+                               Foreground="{DynamicResource DangerBrush}"
                                FontSize="12"
                                Margin="0,0,0,10"
                                Visibility="{Binding EditorValidationError, Converter={StaticResource BooleanToVisibilityConverter}}" />

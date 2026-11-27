@@ -15,6 +15,7 @@ public static class SettingKeys
     public const string LastSelectedWorkItemId = "LastSelectedWorkItemId";
     public const string CompactModeEnabled = "CompactModeEnabled";
     public const string BackgroundOpacity = "BackgroundOpacity";
+    public const string AppTheme = "AppTheme";
 
     public const string WindowWidth = "WindowWidth";
     public const string WindowHeight = "WindowHeight";

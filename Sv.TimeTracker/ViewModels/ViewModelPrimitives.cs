@@ -16,7 +16,8 @@ public record SettingsSnapshot(
     bool TopmostEnabled,
     bool MinimizeToTray,
     bool PersistWindowBounds,
-    int BackgroundOpacity);
+    int BackgroundOpacity,
+    string AppTheme = "System");
 
 public static class UiDispatcher
 {

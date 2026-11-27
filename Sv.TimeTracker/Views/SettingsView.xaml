@@ -18,15 +18,15 @@
                 <TextBlock Text="Settings"
                            FontSize="20"
                            FontWeight="SemiBold"
-                           Foreground="{StaticResource TextFillColorPrimary}" />
+                           Foreground="{DynamicResource AppTextPrimaryBrush}" />
                 <TextBlock Text="Window behavior, chimes, and global hotkeys"
                            FontSize="12"
-                           Foreground="{StaticResource TextFillColorSecondary}" />
+                           Foreground="{DynamicResource AppTextSecondaryBrush}" />
             </StackPanel>
             <TextBlock Grid.Column="1"
                        Text="{Binding AppVersionDisplay}"
                        FontSize="12"
-                       Foreground="{StaticResource TextFillColorTertiary}"
+                       Foreground="{DynamicResource AppTextTertiaryBrush}"
                        VerticalAlignment="Top"
                        Margin="0,4,0,0" />
         </Grid>
@@ -40,12 +40,22 @@
                         <TextBlock Text="GENERAL &amp; WINDOW"
                                    FontSize="10.5"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                   Foreground="{DynamicResource AppTextSecondaryBrush}"
                                    Margin="0,0,0,8" />
+
+                        <TextBlock Grid.Column="0"
+                                   Text="Theme"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource AppTextSecondaryBrush}"
+                                   Margin="0,0,0,4" />
+                        <ComboBox ItemsSource="{Binding ThemeOptions}"
+                                  SelectedItem="{Binding AppTheme, Mode=TwoWay}"
+                                  Margin="0,0,0,10"
+                                  ToolTip="Choose Dark, Light, or follow Windows System theme" />
 
                         <TextBlock Text="Default Work Item on Startup"
                                    FontSize="12"
-                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                   Foreground="{DynamicResource AppTextSecondaryBrush}"
                                    Margin="0,0,0,4" />
                         <ComboBox ItemsSource="{Binding DefaultWorkItemOptions}"
                                   SelectedItem="{Binding SelectedDefaultWorkItem, Mode=TwoWay}"
@@ -84,7 +94,7 @@
                                        FontSize="12"
                                        HorizontalAlignment="Right"
                                        VerticalAlignment="Center"
-                                       Foreground="{StaticResource TextFillColorSecondary}"
+                                       Foreground="{DynamicResource AppTextSecondaryBrush}"
                                        Margin="6,0,0,0" />
                         </Grid>
                     </StackPanel>
@@ -96,7 +106,7 @@
                         <TextBlock Text="HOURLY &amp; HALF-HOUR CHIME"
                                    FontSize="10.5"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                   Foreground="{DynamicResource AppTextSecondaryBrush}"
                                    Margin="0,0,0,8" />
 
                         <CheckBox Content="Play chime on the hour (:00)"
@@ -133,7 +143,7 @@
                                        FontSize="12"
                                        HorizontalAlignment="Right"
                                        VerticalAlignment="Center"
-                                       Foreground="{StaticResource TextFillColorSecondary}"
+                                       Foreground="{DynamicResource AppTextSecondaryBrush}"
                                        Margin="6,0,8,0" />
                             <Button Grid.Column="3"
                                     Content="🔊 Test"
@@ -152,7 +162,7 @@
                                        Text="{Binding SoundFileDisplay}"
                                        FontSize="12"
                                        VerticalAlignment="Center"
-                                       Foreground="{StaticResource TextFillColorSecondary}"
+                                       Foreground="{DynamicResource AppTextSecondaryBrush}"
                                        TextTrimming="CharacterEllipsis" />
                             <Button Grid.Column="1"
                                     Content="Browse..."
@@ -178,7 +188,7 @@
                                        Text="Quiet Hours:"
                                        FontSize="12"
                                        VerticalAlignment="Center"
-                                       Foreground="{StaticResource TextFillColorSecondary}"
+                                       Foreground="{DynamicResource AppTextSecondaryBrush}"
                                        Margin="0,0,8,0" />
                             <TextBox Grid.Column="1"
                                      Text="{Binding QuietHoursStart, UpdateSourceTrigger=PropertyChanged}"
@@ -189,7 +199,7 @@
                                        Text="to"
                                        FontSize="12"
                                        VerticalAlignment="Center"
-                                       Foreground="{StaticResource TextFillColorSecondary}"
+                                       Foreground="{DynamicResource AppTextSecondaryBrush}"
                                        Margin="8,0,8,0" />
                             <TextBox Grid.Column="3"
                                      Text="{Binding QuietHoursEnd, UpdateSourceTrigger=PropertyChanged}"
@@ -213,7 +223,7 @@
                                        FontSize="10.5"
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center"
-                                       Foreground="{StaticResource TextFillColorSecondary}" />
+                                       Foreground="{DynamicResource AppTextSecondaryBrush}" />
                             <Button Grid.Column="1"
                                     Content="Reset Defaults"
                                     Command="{Binding ResetDefaultHotkeysCommand}"
@@ -273,7 +283,7 @@
 
                         <TextBlock Text="{Binding HotkeyWarningsText}"
                                    FontSize="11.5"
-                                   Foreground="#F59E0B"
+                                   Foreground="{DynamicResource WarningBrush}"
                                    TextWrapping="Wrap"
                                    Margin="0,6,0,0"
                                    Visibility="{Binding HotkeyWarningsText, Converter={StaticResource BooleanToVisibilityConverter}}" />
@@ -286,11 +296,11 @@
                         <TextBlock Text="DATA STORAGE"
                                    FontSize="10.5"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                   Foreground="{DynamicResource AppTextSecondaryBrush}"
                                    Margin="0,0,0,6" />
                         <TextBlock Text="Local SQLite database (preserved across app upgrades):"
                                    FontSize="11.5"
-                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                   Foreground="{DynamicResource AppTextSecondaryBrush}"
                                    Margin="0,0,0,6" />
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -321,7 +331,7 @@
                         <TextBlock Text="ABOUT"
                                    FontSize="10.5"
                                    FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextFillColorSecondary}"
+                                   Foreground="{DynamicResource AppTextSecondaryBrush}"
                                    Margin="0,0,0,10" />
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -340,16 +350,16 @@
                                     <TextBlock Text="SV Time Tracker"
                                                FontSize="14"
                                                FontWeight="SemiBold"
-                                               Foreground="{StaticResource TextFillColorPrimary}" />
+                                               Foreground="{DynamicResource AppTextPrimaryBrush}" />
                                     <TextBlock Text="{Binding AppVersionDisplay}"
                                                FontSize="12"
-                                               Foreground="{StaticResource TextFillColorSecondary}"
+                                               Foreground="{DynamicResource AppTextSecondaryBrush}"
                                                VerticalAlignment="Bottom"
                                                Margin="8,0,0,1" />
                                 </StackPanel>
                                 <TextBlock Text="Software Vantage · Houston, Texas"
                                            FontSize="12"
-                                           Foreground="{StaticResource TextFillColorSecondary}"
+                                           Foreground="{DynamicResource AppTextSecondaryBrush}"
                                            Margin="0,2,0,0" />
                             </StackPanel>
                         </Grid>
@@ -388,10 +398,10 @@
                        Visibility="{Binding StatusMessage, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
-                        <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding HasValidationError}" Value="True">
-                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>

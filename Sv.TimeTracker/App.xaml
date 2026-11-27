@@ -3,28 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Sv.TimeTracker"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
-             ThemeMode="Dark">
+             ThemeMode="System">
     <Application.Resources>
         <ResourceDictionary>
-            <!-- Core Semantic Palette (Frosted Glass Dark) -->
-            <SolidColorBrush x:Key="AcrylicBackground" Color="#CC0B1120" />
-            <SolidColorBrush x:Key="FallbackShellBackground" Color="#F40B1120" />
-            <SolidColorBrush x:Key="GlassBorderBrush" Color="#28FFFFFF" />
-            <SolidColorBrush x:Key="CardBackgroundFillColorDefaultBrush" Color="#22FFFFFF" />
-            <SolidColorBrush x:Key="CardHoverBrush" Color="#30FFFFFF" />
-            <SolidColorBrush x:Key="CardStrokeBrush" Color="#1FFFFFFF" />
-            <SolidColorBrush x:Key="ModalOverlayBrush" Color="#D9090E1A" />
-            <SolidColorBrush x:Key="InputBackgroundBrush" Color="#24000000" />
-
-            <SolidColorBrush x:Key="TextFillColorPrimary" Color="#F8FAFC" />
-            <SolidColorBrush x:Key="TextFillColorSecondary" Color="#94A3B8" />
-            <SolidColorBrush x:Key="TextFillColorTertiary" Color="#64748B" />
-
-            <SolidColorBrush x:Key="AccentBrush" Color="#0EA5E9" />
-            <SolidColorBrush x:Key="AccentHoverBrush" Color="#38BDF8" />
-            <SolidColorBrush x:Key="DangerBrush" Color="#F43F5E" />
-            <SolidColorBrush x:Key="DangerHoverBrush" Color="#FB7185" />
-            <SolidColorBrush x:Key="SuccessBrush" Color="#10B981" />
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/DarkTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
 
             <!-- Metrics & Corner Radii -->
             <CornerRadius x:Key="BorderRadius">10</CornerRadius>
@@ -40,8 +24,8 @@
 
             <!-- Frosted Card Container Style -->
             <Style x:Key="FrostedCardStyle" TargetType="Border">
-                <Setter Property="Background" Value="{StaticResource CardBackgroundFillColorDefaultBrush}" />
-                <Setter Property="BorderBrush" Value="{StaticResource CardStrokeBrush}" />
+                <Setter Property="Background" Value="{DynamicResource AppCardBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="CornerRadius" Value="{StaticResource BorderRadius}" />
                 <Setter Property="Padding" Value="14" />
@@ -49,7 +33,7 @@
 
             <!-- Primary Accent Button -->
             <Style x:Key="AccentButtonStyle" TargetType="Button">
-                <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+                <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
                 <Setter Property="Foreground" Value="#FFFFFF" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="Padding" Value="16,8" />
@@ -68,7 +52,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="BtnBorder" Property="Background" Value="{StaticResource AccentHoverBrush}" />
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="{DynamicResource AccentHoverBrush}" />
                                 </Trigger>
                                 <Trigger Property="IsEnabled" Value="False">
                                     <Setter TargetName="BtnBorder" Property="Opacity" Value="0.45" />
@@ -81,7 +65,7 @@
 
             <!-- Danger / Stop Button -->
             <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
-                <Setter Property="Background" Value="{StaticResource DangerBrush}" />
+                <Setter Property="Background" Value="{DynamicResource DangerBrush}" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
@@ -94,7 +78,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="BtnBorder" Property="Background" Value="{StaticResource DangerHoverBrush}" />
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="{DynamicResource DangerHoverBrush}" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -104,9 +88,9 @@
 
             <!-- Subtle Frosted Secondary Button -->
             <Style x:Key="SubtleButtonStyle" TargetType="Button">
-                <Setter Property="Background" Value="#1FFFFFFF" />
-                <Setter Property="Foreground" Value="{StaticResource TextFillColorPrimary}" />
-                <Setter Property="BorderBrush" Value="#26FFFFFF" />
+                <Setter Property="Background" Value="{DynamicResource SubtleButtonBackgroundBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource SubtleButtonBorderBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="Padding" Value="12,6" />
                 <Setter Property="FontSize" Value="12.5" />
@@ -125,7 +109,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="#33FFFFFF" />
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleButtonHoverBrush}" />
                                 </Trigger>
                                 <Trigger Property="IsEnabled" Value="False">
                                     <Setter TargetName="Bd" Property="Opacity" Value="0.4" />
@@ -145,7 +129,7 @@
                 <Setter Property="Padding" Value="0" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="Background" Value="Transparent" />
-                <Setter Property="Foreground" Value="{StaticResource TextFillColorSecondary}" />
+                <Setter Property="Foreground" Value="{DynamicResource AppTextSecondaryBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="Cursor" Value="Hand" />
@@ -157,8 +141,8 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="#28FFFFFF" />
-                                    <Setter Property="Foreground" Value="{StaticResource TextFillColorPrimary}" />
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ChromeButtonHoverBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -175,7 +159,7 @@
                 <Setter Property="Padding" Value="0" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="Background" Value="Transparent" />
-                <Setter Property="Foreground" Value="{StaticResource TextFillColorSecondary}" />
+                <Setter Property="Foreground" Value="{DynamicResource AppTextSecondaryBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="Cursor" Value="Hand" />
@@ -187,12 +171,12 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="#28FFFFFF" />
-                                    <Setter Property="Foreground" Value="{StaticResource TextFillColorPrimary}" />
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ChromeButtonHoverBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}" />
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="#330EA5E9" />
-                                    <Setter Property="Foreground" Value="#38BDF8" />
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource PinCheckedBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
